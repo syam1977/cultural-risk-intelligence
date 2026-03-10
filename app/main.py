@@ -7,12 +7,29 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from google import genai
 
-from app.live_session import router as live_router
+from app.live_session import router as live_router, init_clients
 
 app = FastAPI(title="Cultural Risk Intelligence")
 
 app.include_router(live_router)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+
+@app.on_event("startup")
+async def startup():
+    project = os.environ["GOOGLE_CLOUD_PROJECT"]
+
+    live_client = genai.Client(
+        vertexai=True,
+        project=project,
+        location=os.environ.get("GOOGLE_CLOUD_LIVE_LOCATION", "us-central1"),
+    )
+    analysis_client = genai.Client(
+        vertexai=True,
+        project=project,
+        location=os.environ.get("GOOGLE_CLOUD_LOCATION", "global"),
+    )
+    init_clients(live_client, analysis_client)
 
 
 @app.get("/")

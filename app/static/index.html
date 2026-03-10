@@ -26,7 +26,13 @@
     #analyzeBtn:hover { background: #059669; }
     #micBtn { background: #334155; color: #e2e8f0; min-width: 44px; }
     #micBtn.active { background: #ef4444; }
+    #attachBtn { background: #334155; color: #e2e8f0; min-width: 44px; }
+    #attachBtn.has-image { background: #8b5cf6; }
+    #preview { display: none; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+    #preview img { max-height: 64px; border-radius: 4px; border: 1px solid #334155; }
+    #preview .remove { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1rem; padding: 0 0.25rem; min-width: auto; }
     .status { text-align: center; margin-top: 0.75rem; font-size: 0.75rem; color: #64748b; }
+    #speaking { text-align: center; margin-top: 0.5rem; font-size: 0.875rem; color: #facc15; display: none; }
   </style>
 </head>
 <body>
@@ -34,13 +40,17 @@
     <h1>Cultural Risk Intelligence</h1>
     <p class="subtitle">Gemini Live API - リアルタイム文化リスク分析</p>
     <div id="log"><div class="msg system">接続中...</div></div>
+    <div id="preview"><img id="thumb" /><button class="remove" id="removeImg">&times;</button></div>
+    <input type="file" id="fileInput" accept="image/*" hidden />
     <div class="controls">
       <button id="micBtn" title="音声入力">&#x1f3a4;</button>
+      <button id="attachBtn" title="画像添付">&#x1f4ce;</button>
       <input type="text" id="input" placeholder="文化リスクについて質問..." />
       <button id="sendBtn">送信</button>
       <button id="analyzeBtn">詳細分析</button>
     </div>
     <div class="status" id="status"></div>
+    <div id="speaking">&#x1f50a; 応答中...</div>
   </div>
   <script>
     const log = document.getElementById("log");
@@ -48,12 +58,90 @@
     const sendBtn = document.getElementById("sendBtn");
     const analyzeBtn = document.getElementById("analyzeBtn");
     const micBtn = document.getElementById("micBtn");
+    const attachBtn = document.getElementById("attachBtn");
+    const fileInput = document.getElementById("fileInput");
+    const preview = document.getElementById("preview");
+    const thumb = document.getElementById("thumb");
+    const removeImg = document.getElementById("removeImg");
     const status = document.getElementById("status");
 
     let ws;
     let mediaStream;
     let audioCtx;
     let recording = false;
+    const speaking = document.getElementById("speaking");
+
+    /* --- Image attachment state --- */
+    let pendingImage = null;   // { base64, mime_type }
+
+    attachBtn.onclick = () => fileInput.click();
+
+    fileInput.onchange = () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result;                       // data:image/png;base64,xxxxx
+        const base64 = dataUrl.split(",")[1];
+        const mime_type = file.type || "image/jpeg";
+        pendingImage = { base64, mime_type };
+        thumb.src = dataUrl;
+        preview.style.display = "flex";
+        attachBtn.classList.add("has-image");
+      };
+      reader.readAsDataURL(file);
+      fileInput.value = "";
+    };
+
+    removeImg.onclick = () => {
+      pendingImage = null;
+      preview.style.display = "none";
+      attachBtn.classList.remove("has-image");
+    };
+    /* ----------------------------- */
+
+    /* --- Audio playback queue (PCM 16-bit 24 kHz mono) --- */
+    let playbackCtx;
+    const audioQueue = [];
+    let isPlaying = false;
+    let nextStartTime = 0;
+
+    function showSpeaking() { speaking.style.display = "block"; }
+    function hideSpeaking() { speaking.style.display = "none"; }
+
+    function playAudio(buffer) {
+      if (!playbackCtx) playbackCtx = new AudioContext({ sampleRate: 24000 });
+      /* PCM s16le → Float32 */
+      const samples = buffer.byteLength / 2;
+      const float32 = new Float32Array(samples);
+      const view = new DataView(buffer);
+      for (let i = 0; i < samples; i++) {
+        float32[i] = view.getInt16(i * 2, true) / 32768;
+      }
+      audioQueue.push(float32);
+      if (!isPlaying) drainQueue();
+    }
+
+    function drainQueue() {
+      if (audioQueue.length === 0) { isPlaying = false; hideSpeaking(); return; }
+      isPlaying = true;
+      showSpeaking();
+
+      const float32 = audioQueue.shift();
+      const ab = playbackCtx.createBuffer(1, float32.length, 24000);
+      ab.copyToChannel(float32, 0);
+      const src = playbackCtx.createBufferSource();
+      src.buffer = ab;
+      src.connect(playbackCtx.destination);
+
+      const now = playbackCtx.currentTime;
+      const start = Math.max(now, nextStartTime);
+      src.start(start);
+      nextStartTime = start + ab.duration;
+
+      src.onended = () => drainQueue();
+    }
+    /* ---------------------------------------------------- */
 
     function addMsg(text, cls) {
       const div = document.createElement("div");
@@ -87,27 +175,20 @@
       };
     }
 
-    function playAudio(buffer) {
-      if (!audioCtx) audioCtx = new AudioContext({ sampleRate: 24000 });
-      const float32 = new Float32Array(buffer.byteLength / 2);
-      const view = new DataView(buffer);
-      for (let i = 0; i < float32.length; i++) {
-        float32[i] = view.getInt16(i * 2, true) / 32768;
-      }
-      const ab = audioCtx.createBuffer(1, float32.length, 24000);
-      ab.copyToChannel(float32, 0);
-      const src = audioCtx.createBufferSource();
-      src.buffer = ab;
-      src.connect(audioCtx.destination);
-      src.start();
-    }
-
     sendBtn.onclick = () => {
       const text = input.value.trim();
-      if (!text || ws.readyState !== 1) return;
-      addMsg(text, "user");
-      ws.send(JSON.stringify({ type: "message", data: text }));
+      if ((!text && !pendingImage) || ws.readyState !== 1) return;
+      addMsg(text || "(画像)", "user");
+      const payload = { type: "message", data: text };
+      if (pendingImage) {
+        payload.image = pendingImage.base64;
+        payload.mime_type = pendingImage.mime_type;
+      }
+      ws.send(JSON.stringify(payload));
       input.value = "";
+      pendingImage = null;
+      preview.style.display = "none";
+      attachBtn.classList.remove("has-image");
     };
 
     analyzeBtn.onclick = () => {

@@ -31,22 +31,34 @@ class MarketAgentRunner:
     def __init__(self, client: genai.Client):
         self.client = client
 
-    async def _run_single(self, market_key: str, query: str) -> tuple[str, str]:
+    async def _run_single(
+        self, market_key: str, query: str, image_bytes: bytes | None = None
+    ) -> tuple[str, str]:
         """単一市場の分析を実行."""
         system_prompt = load_prompt(market_key)
         label = MARKETS[market_key]
 
+        if image_bytes is not None:
+            contents = [
+                genai.types.Part.from_text(query),
+                genai.types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
+            ]
+        else:
+            contents = query
+
         response = await self.client.aio.models.generate_content(
             model=MARKET_MODEL,
-            contents=query,
+            contents=contents,
             config=genai.types.GenerateContentConfig(
                 system_instruction=system_prompt,
             ),
         )
         return label, response.text
 
-    async def run_all(self, query: str) -> dict[str, str]:
+    async def run_all(
+        self, query: str, image_bytes: bytes | None = None
+    ) -> dict[str, str]:
         """全市場を並列分析."""
-        tasks = [self._run_single(key, query) for key in MARKETS]
+        tasks = [self._run_single(key, query, image_bytes) for key in MARKETS]
         results = await asyncio.gather(*tasks)
         return dict(results)

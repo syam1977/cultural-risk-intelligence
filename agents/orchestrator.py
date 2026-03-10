@@ -9,15 +9,17 @@ from agents.market_agents import MarketAgentRunner
 SYNTHESIS_MODEL = "gemini-2.5-flash"
 
 SYNTHESIS_PROMPT = """\
-あなたは文化リスク分析の統合アナリストです。
-各市場エージェントから報告されたリスク分析結果を統合し、
-グローバル視点での文化リスクレポートを生成してください。
+You are a global cultural risk synthesis analyst.
+Integrate the risk analysis reports from each market agent and produce
+a unified global cultural risk report.
 
-以下の観点で統合してください:
-- 市場横断的なリスクパターン
-- 市場固有の重大リスク
-- 推奨アクション（優先度付き）
-- 全体リスクスコア (1-10)
+Structure your output as follows:
+- Cross-market risk patterns: risks that appear across multiple markets
+- Market-specific critical risks: high-severity risks unique to individual markets
+- Recommended actions with priority (High / Medium / Low)
+- Overall risk score (1-10)
+
+Output in English. Keep it concise.
 """
 
 
@@ -28,9 +30,9 @@ class Orchestrator:
         self.client = client
         self.market_runner = MarketAgentRunner(client)
 
-    async def analyze(self, query: str) -> str:
+    async def analyze(self, query: str, image_bytes: bytes | None = None) -> str:
         """ユーザーのクエリに対して全市場を並列分析し、統合結果を返す."""
-        market_results = await self.market_runner.run_all(query)
+        market_results = await self.market_runner.run_all(query, image_bytes)
 
         combined = "\n\n".join(
             f"## {market} 市場レポート\n{result}"
