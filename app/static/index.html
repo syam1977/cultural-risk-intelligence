@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cultural Risk Intelligence</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: "Helvetica Neue", Arial, "Hiragino Sans", sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+    .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+    h1 { text-align: center; margin-bottom: 0.5rem; font-size: 1.5rem; color: #38bdf8; }
+    .subtitle { text-align: center; color: #94a3b8; margin-bottom: 2rem; font-size: 0.875rem; }
+    #log { background: #1e293b; border-radius: 8px; padding: 1rem; height: 400px; overflow-y: auto; margin-bottom: 1rem; font-size: 0.875rem; line-height: 1.6; }
+    .msg { padding: 0.25rem 0; }
+    .msg.user { color: #38bdf8; }
+    .msg.agent { color: #a5f3fc; }
+    .msg.analysis { color: #34d399; white-space: pre-wrap; }
+    .msg.system { color: #64748b; font-style: italic; }
+    .controls { display: flex; gap: 0.5rem; }
+    input[type="text"] { flex: 1; padding: 0.75rem 1rem; border: 1px solid #334155; border-radius: 6px; background: #1e293b; color: #e2e8f0; font-size: 0.875rem; outline: none; }
+    input[type="text"]:focus { border-color: #38bdf8; }
+    button { padding: 0.75rem 1.25rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.875rem; font-weight: 600; }
+    #sendBtn { background: #0ea5e9; color: #fff; }
+    #sendBtn:hover { background: #0284c7; }
+    #analyzeBtn { background: #10b981; color: #fff; }
+    #analyzeBtn:hover { background: #059669; }
+    #micBtn { background: #334155; color: #e2e8f0; min-width: 44px; }
+    #micBtn.active { background: #ef4444; }
+    .status { text-align: center; margin-top: 0.75rem; font-size: 0.75rem; color: #64748b; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Cultural Risk Intelligence</h1>
+    <p class="subtitle">Gemini Live API - リアルタイム文化リスク分析</p>
+    <div id="log"><div class="msg system">接続中...</div></div>
+    <div class="controls">
+      <button id="micBtn" title="音声入力">&#x1f3a4;</button>
+      <input type="text" id="input" placeholder="文化リスクについて質問..." />
+      <button id="sendBtn">送信</button>
+      <button id="analyzeBtn">詳細分析</button>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+  <script>
+    const log = document.getElementById("log");
+    const input = document.getElementById("input");
+    const sendBtn = document.getElementById("sendBtn");
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const micBtn = document.getElementById("micBtn");
+    const status = document.getElementById("status");
+
+    let ws;
+    let mediaStream;
+    let audioCtx;
+    let recording = false;
+
+    function addMsg(text, cls) {
+      const div = document.createElement("div");
+      div.className = "msg " + cls;
+      div.textContent = text;
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function connect() {
+      const proto = location.protocol === "https:" ? "wss:" : "ws:";
+      ws = new WebSocket(`${proto}//${location.host}/ws/live`);
+      ws.binaryType = "arraybuffer";
+
+      ws.onopen = () => {
+        addMsg("接続しました", "system");
+        status.textContent = "";
+      };
+      ws.onmessage = (e) => {
+        if (typeof e.data === "string") {
+          const msg = JSON.parse(e.data);
+          if (msg.type === "text") addMsg(msg.data, "agent");
+          else if (msg.type === "analysis") addMsg(msg.data, "analysis");
+        } else {
+          playAudio(e.data);
+        }
+      };
+      ws.onclose = () => {
+        addMsg("切断されました。再接続します...", "system");
+        setTimeout(connect, 3000);
+      };
+    }
+
+    function playAudio(buffer) {
+      if (!audioCtx) audioCtx = new AudioContext({ sampleRate: 24000 });
+      const float32 = new Float32Array(buffer.byteLength / 2);
+      const view = new DataView(buffer);
+      for (let i = 0; i < float32.length; i++) {
+        float32[i] = view.getInt16(i * 2, true) / 32768;
+      }
+      const ab = audioCtx.createBuffer(1, float32.length, 24000);
+      ab.copyToChannel(float32, 0);
+      const src = audioCtx.createBufferSource();
+      src.buffer = ab;
+      src.connect(audioCtx.destination);
+      src.start();
+    }
+
+    sendBtn.onclick = () => {
+      const text = input.value.trim();
+      if (!text || ws.readyState !== 1) return;
+      addMsg(text, "user");
+      ws.send(JSON.stringify({ type: "message", data: text }));
+      input.value = "";
+    };
+
+    analyzeBtn.onclick = () => {
+      const text = input.value.trim();
+      if (!text || ws.readyState !== 1) return;
+      addMsg(`[詳細分析] ${text}`, "user");
+      ws.send(JSON.stringify({ type: "analyze", query: text }));
+      input.value = "";
+      status.textContent = "全市場を並列分析中...";
+      setTimeout(() => { status.textContent = ""; }, 10000);
+    };
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendBtn.click();
+    });
+
+    micBtn.onclick = async () => {
+      if (recording) {
+        recording = false;
+        micBtn.classList.remove("active");
+        if (mediaStream) mediaStream.getTracks().forEach((t) => t.stop());
+        return;
+      }
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: { sampleRate: 16000, channelCount: 1 } });
+        if (!audioCtx) audioCtx = new AudioContext({ sampleRate: 16000 });
+        const source = audioCtx.createMediaStreamSource(mediaStream);
+        const processor = audioCtx.createScriptProcessor(4096, 1, 1);
+        processor.onaudioprocess = (e) => {
+          if (!recording || ws.readyState !== 1) return;
+          const float32 = e.inputBuffer.getChannelData(0);
+          const int16 = new Int16Array(float32.length);
+          for (let i = 0; i < float32.length; i++) {
+            int16[i] = Math.max(-32768, Math.min(32767, float32[i] * 32768));
+          }
+          ws.send(int16.buffer);
+        };
+        source.connect(processor);
+        processor.connect(audioCtx.destination);
+        recording = true;
+        micBtn.classList.add("active");
+      } catch (err) {
+        addMsg("マイクへのアクセスに失敗しました", "system");
+      }
+    };
+
+    connect();
+  </script>
+</body>
+</html>
