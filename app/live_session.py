@@ -35,7 +35,7 @@ def _get_client() -> genai.Client:
     return genai.Client(
         vertexai=True,
         project=os.environ["GOOGLE_CLOUD_PROJECT"],
-        location=os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1"),
+        location=os.environ.get("GOOGLE_CLOUD_LOCATION", "global"),
     )
 
 
@@ -74,7 +74,9 @@ async def live_session(ws: WebSocket):
                         await ws.send_json({"type": "analysis", "data": result})
                     else:
                         # テキストメッセージを Live セッションに送信
-                        await session.send(input=payload.get("data", ""), end_of_turn=True)
+                        await session.send_client_content(
+                            turns=payload.get("data", ""), turn_complete=True
+                        )
 
                 elif msg.get("bytes"):
                     # 音声データを Live セッションに送信
