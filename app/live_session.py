@@ -65,6 +65,7 @@ async def live_session(ws: WebSocket):
                             if response.text:
                                 await ws.send_json({"type": "text", "data": response.text})
                             if response.data:
+                                print(f"[GEMINI] audio chunk {len(response.data)} bytes")
                                 await ws.send_bytes(response.data)
                     except Exception:
                         break
@@ -111,9 +112,10 @@ async def live_session(ws: WebSocket):
                         )
 
                 elif msg.get("bytes"):
-                    # 音声データを Live セッションに送信
+                    audio_bytes = msg["bytes"]
+                    print(f"[AUDIO] received {len(audio_bytes)} bytes")
                     await session.send_realtime_input(
-                        media=types.Blob(data=msg["bytes"], mime_type="audio/pcm")
+                        media=types.Blob(data=audio_bytes, mime_type="audio/pcm")
                     )
 
             recv_task.cancel()

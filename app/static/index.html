@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -38,19 +38,19 @@
 <body>
   <div class="container">
     <h1>Cultural Risk Intelligence</h1>
-    <p class="subtitle">Gemini Live API - リアルタイム文化リスク分析</p>
-    <div id="log"><div class="msg system">接続中...</div></div>
+    <p class="subtitle">Real-time Cultural Risk Analysis via Gemini Live API</p>
+    <div id="log"><div class="msg system">Connecting...</div></div>
     <div id="preview"><img id="thumb" /><button class="remove" id="removeImg">&times;</button></div>
     <input type="file" id="fileInput" accept="image/*" hidden />
     <div class="controls">
-      <button id="micBtn" title="音声入力">&#x1f3a4;</button>
-      <button id="attachBtn" title="画像添付">&#x1f4ce;</button>
-      <input type="text" id="input" placeholder="文化リスクについて質問..." />
-      <button id="sendBtn">送信</button>
-      <button id="analyzeBtn">詳細分析</button>
+      <button id="micBtn" title="Voice input">&#x1f3a4;</button>
+      <button id="attachBtn" title="Attach image">&#x1f4ce;</button>
+      <input type="text" id="input" placeholder="Ask about cultural risks..." />
+      <button id="sendBtn">Send</button>
+      <button id="analyzeBtn">Deep Analyze</button>
     </div>
     <div class="status" id="status"></div>
-    <div id="speaking">&#x1f50a; 応答中...</div>
+    <div id="speaking">&#x1f50a; Speaking...</div>
   </div>
   <script>
     const log = document.getElementById("log");
@@ -136,12 +136,30 @@
 
       const now = playbackCtx.currentTime;
       const start = Math.max(now, nextStartTime);
+      activeSources.push(src);
       src.start(start);
       nextStartTime = start + ab.duration;
-
-      src.onended = () => drainQueue();
+      src.onended = () => {
+        const idx = activeSources.indexOf(src);
+        if (idx !== -1) activeSources.splice(idx, 1);
+        drainQueue();
+      };
     }
     /* ---------------------------------------------------- */
+
+    /* 再生中断: キューをクリアし再生中のSourceを停止 */
+    const activeSources = [];
+
+    function stopPlayback() {
+      audioQueue.length = 0;
+      isPlaying = false;
+      nextStartTime = 0;
+      for (const src of activeSources) {
+        try { src.stop(); } catch(_) {}
+      }
+      activeSources.length = 0;
+      hideSpeaking();
+    }
 
     function addMsg(text, cls) {
       const div = document.createElement("div");
@@ -157,7 +175,7 @@
       ws.binaryType = "arraybuffer";
 
       ws.onopen = () => {
-        addMsg("接続しました", "system");
+        addMsg("Connected", "system");
         status.textContent = "";
       };
       ws.onmessage = (e) => {
@@ -170,7 +188,7 @@
         }
       };
       ws.onclose = () => {
-        addMsg("切断されました。再接続します...", "system");
+        addMsg("Disconnected. Reconnecting...", "system");
         setTimeout(connect, 3000);
       };
     }
@@ -178,7 +196,7 @@
     sendBtn.onclick = () => {
       const text = input.value.trim();
       if ((!text && !pendingImage) || ws.readyState !== 1) return;
-      addMsg(text || "(画像)", "user");
+      addMsg(text || "(image)", "user");
       const payload = { type: "message", data: text };
       if (pendingImage) {
         payload.image = pendingImage.base64;
@@ -194,10 +212,10 @@
     analyzeBtn.onclick = () => {
       const text = input.value.trim();
       if (!text || ws.readyState !== 1) return;
-      addMsg(`[詳細分析] ${text}`, "user");
+      addMsg(`[Deep Analysis] ${text}`, "user");
       ws.send(JSON.stringify({ type: "analyze", query: text }));
       input.value = "";
-      status.textContent = "全市場を並列分析中...";
+      status.textContent = "Analyzing all markets in parallel...";
       setTimeout(() => { status.textContent = ""; }, 10000);
     };
 
@@ -220,6 +238,14 @@
         processor.onaudioprocess = (e) => {
           if (!recording || ws.readyState !== 1) return;
           const float32 = e.inputBuffer.getChannelData(0);
+          /* 簡易VAD: RMSが閾値以上のときだけ送信 */
+          let rms = 0;
+          for (let i = 0; i < float32.length; i++) rms += float32[i] * float32[i];
+          rms = Math.sqrt(rms / float32.length);
+          console.log("[MIC] rms:", rms.toFixed(4));
+          if (rms < 0.01) return;   // 無音はスキップ
+          /* 話し始めたら再生を止める（割り込み） */
+          if (isPlaying) stopPlayback();
           const int16 = new Int16Array(float32.length);
           for (let i = 0; i < float32.length; i++) {
             int16[i] = Math.max(-32768, Math.min(32767, float32[i] * 32768));
@@ -231,7 +257,7 @@
         recording = true;
         micBtn.classList.add("active");
       } catch (err) {
-        addMsg("マイクへのアクセスに失敗しました", "system");
+        addMsg("Microphone access denied", "system");
       }
     };
 
