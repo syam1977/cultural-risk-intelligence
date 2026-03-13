@@ -16,6 +16,7 @@ LIVE_MODEL = "gemini-live-2.5-flash-native-audio"
 
 LIVE_CONFIG = types.LiveConnectConfig(
     response_modalities=["AUDIO"],
+    output_audio_transcription=types.AudioTranscriptionConfig(),
     system_instruction=types.Content(
         parts=[
             types.Part(
@@ -62,11 +63,16 @@ async def live_session(ws: WebSocket):
                 while True:
                     try:
                         async for response in session.receive():
+                            # 音声データを転送
+                            if response.data:
+                                await ws.send_bytes(response.data)
+                            # model_turn 内のテキスト（TEXT モダリティ時）
                             if response.text:
                                 await ws.send_json({"type": "text", "data": response.text})
-                            if response.data:
-                                print(f"[GEMINI] audio chunk {len(response.data)} bytes")
-                                await ws.send_bytes(response.data)
+                            # 音声トランスクリプション（AUDIO モダリティ時）
+                            sc = response.server_content
+                            if sc and sc.output_transcription and sc.output_transcription.text:
+                                await ws.send_json({"type": "text", "data": sc.output_transcription.text})
                     except Exception:
                         break
 
@@ -89,8 +95,14 @@ async def live_session(ws: WebSocket):
                         image_bytes = None
                         if payload.get("image"):
                             image_bytes = base64.b64decode(payload["image"])
-                        result = await _orchestrator.analyze(query, image_bytes)
-                        await ws.send_json({"type": "analysis", "data": result})
+                        try:
+                            result = await _orchestrator.analyze(query, image_bytes)
+                            await ws.send_json({"type": "analysis", "data": result})
+                        except Exception as e:
+                            await ws.send_json({
+                                "type": "analysis",
+                                "data": f"Analysis failed: {str(e)}"
+                            })
                     else:
                         # テキスト（+画像）メッセージを Live セッションに送信
                         user_message = payload.get("data", "")
@@ -115,7 +127,6 @@ async def live_session(ws: WebSocket):
 
                 elif msg.get("bytes"):
                     audio_bytes = msg["bytes"]
-                    print(f"[AUDIO] received {len(audio_bytes)} bytes")
                     await session.send_realtime_input(
                         media=types.Blob(data=audio_bytes, mime_type="audio/pcm")
                     )

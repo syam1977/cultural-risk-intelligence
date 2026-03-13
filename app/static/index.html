@@ -4,272 +4,1232 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cultural Risk Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: "Helvetica Neue", Arial, "Hiragino Sans", sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
-    .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
-    h1 { text-align: center; margin-bottom: 0.5rem; font-size: 1.5rem; color: #38bdf8; }
-    .subtitle { text-align: center; color: #94a3b8; margin-bottom: 2rem; font-size: 0.875rem; }
-    #log { background: #1e293b; border-radius: 8px; padding: 1rem; height: 400px; overflow-y: auto; margin-bottom: 1rem; font-size: 0.875rem; line-height: 1.6; }
-    .msg { padding: 0.25rem 0; }
-    .msg.user { color: #38bdf8; }
-    .msg.agent { color: #a5f3fc; }
-    .msg.analysis { color: #34d399; white-space: pre-wrap; }
-    .msg.system { color: #64748b; font-style: italic; }
-    .controls { display: flex; gap: 0.5rem; }
-    input[type="text"] { flex: 1; padding: 0.75rem 1rem; border: 1px solid #334155; border-radius: 6px; background: #1e293b; color: #e2e8f0; font-size: 0.875rem; outline: none; }
-    input[type="text"]:focus { border-color: #38bdf8; }
-    button { padding: 0.75rem 1.25rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.875rem; font-weight: 600; }
-    #sendBtn { background: #0ea5e9; color: #fff; }
-    #sendBtn:hover { background: #0284c7; }
-    #analyzeBtn { background: #10b981; color: #fff; }
-    #analyzeBtn:hover { background: #059669; }
-    #micBtn { background: #334155; color: #e2e8f0; min-width: 44px; }
-    #micBtn.active { background: #ef4444; }
-    #attachBtn { background: #334155; color: #e2e8f0; min-width: 44px; }
-    #attachBtn.has-image { background: #8b5cf6; }
-    #preview { display: none; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
-    #preview img { max-height: 64px; border-radius: 4px; border: 1px solid #334155; }
-    #preview .remove { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1rem; padding: 0 0.25rem; min-width: auto; }
-    .status { text-align: center; margin-top: 0.75rem; font-size: 0.75rem; color: #64748b; }
-    #speaking { text-align: center; margin-top: 0.5rem; font-size: 0.875rem; color: #facc15; display: none; }
+    :root {
+      --bg:         #08080e;
+      --s1:         #0f0f18;
+      --s2:         #171722;
+      --s3:         #1f1f2e;
+      --border:     #2e2e48;
+      --border-hi:  #444466;
+      --amber:      #f59e0b;
+      --amber-lo:   #78490a;
+      --cyan:       #00cfea;
+      --cyan-lo:    #004450;
+      --green:      #22c55e;
+      --yellow:     #eab308;
+      --orange:     #f97316;
+      --red:        #ef4444;
+      --text:       #dddbd0;
+      --text-mid:   #b0b0cc;
+      --text-dim:   #787898;
+      --jp:         #f87171;
+      --us:         #38bdf8;
+      --fr:         #a78bfa;
+      --de:         #fbbf24;
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      max-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* scanline texture */
+    body::after {
+      content:'';
+      position:fixed; inset:0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 3px,
+        rgba(0,0,0,0.03) 3px, rgba(0,0,0,0.03) 4px
+      );
+      pointer-events:none;
+      z-index:9999;
+    }
+
+    /* ── HEADER ──────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 1.5rem;
+      background: var(--s1);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .logo {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+    .logo-title {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--amber);
+      line-height: 1;
+    }
+    .logo-sub {
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      color: var(--text-mid);
+      font-family: 'Share Tech Mono', monospace;
+      text-transform: uppercase;
+    }
+
+    /* market chips */
+    .market-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.28rem 0.7rem;
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: #9898b8;
+      transition: all 0.25s ease;
+      user-select: none;
+    }
+    .chip .led {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      transition: all 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    .chip.active-jp { color: var(--jp); border-color: var(--jp); background: rgba(248,113,113,0.07); }
+    .chip.active-jp .led { background: var(--jp); box-shadow: 0 0 7px var(--jp); }
+    .chip.active-us { color: var(--us); border-color: var(--us); background: rgba(56,189,248,0.07); }
+    .chip.active-us .led { background: var(--us); box-shadow: 0 0 7px var(--us); }
+    .chip.active-fr { color: var(--fr); border-color: var(--fr); background: rgba(167,139,250,0.07); }
+    .chip.active-fr .led { background: var(--fr); box-shadow: 0 0 7px var(--fr); }
+    .chip.active-de { color: var(--de); border-color: var(--de); background: rgba(251,191,36,0.07); }
+    .chip.active-de .led { background: var(--de); box-shadow: 0 0 7px var(--de); }
+
+    .chip.pulsing { animation: chipBlink 0.7s ease-in-out infinite alternate; }
+    @keyframes chipBlink { from { opacity:0.45; } to { opacity:1; } }
+
+    .chip.deep-active-jp { color: var(--jp); border-color: var(--jp); background: rgba(248,113,113,0.1); }
+    .chip.deep-active-jp .led { background: var(--jp); box-shadow: 0 0 7px var(--jp); }
+    .chip.deep-active-us { color: var(--us); border-color: var(--us); background: rgba(56,189,248,0.1); }
+    .chip.deep-active-us .led { background: var(--us); box-shadow: 0 0 7px var(--us); }
+    .chip.deep-active-fr { color: var(--fr); border-color: var(--fr); background: rgba(167,139,250,0.1); }
+    .chip.deep-active-fr .led { background: var(--fr); box-shadow: 0 0 7px var(--fr); }
+    .chip.deep-active-de { color: var(--de); border-color: var(--de); background: rgba(251,191,36,0.1); }
+    .chip.deep-active-de .led { background: var(--de); box-shadow: 0 0 7px var(--de); }
+
+    /* connection status */
+    .conn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-mid);
+      letter-spacing: 0.05em;
+    }
+    .conn-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--red);
+      transition: all 0.3s;
+    }
+    .conn-dot.on { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+    /* ── MAIN GRID ───────────────────────────────────── */
+    .main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 0;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* ── MAP PANEL ───────────────────────────────────── */
+    .map-panel {
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      background: var(--s1);
+    }
+
+    .panel-bar {
+      padding: 0.4rem 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .panel-bar-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+    }
+    .panel-bar-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-mid);
+      letter-spacing: 0.06em;
+    }
+
+    .map-wrap {
+      flex: 1;
+      padding: 1rem;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    #worldMap {
+      width: 100%;
+      height: 100%;
+      display: block;
+      max-width: none;
+    }
+
+    /* SVG map styles */
+    .land { fill: #191926; stroke: #252538; stroke-width: 0.6; }
+    .land-hi { fill: #1e1e2e; }
+    .graticule { fill: none; stroke: #151520; stroke-width: 0.4; }
+
+    .mpin { cursor: default; }
+    .mpin .ring-outer {
+      fill: none;
+      stroke-width: 1;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .mpin .ring-inner {
+      fill: none;
+      stroke-width: 1.5;
+      opacity: 0.35;
+    }
+    .mpin .dot {
+      stroke-width: 2;
+      transition: all 0.3s;
+    }
+    .mpin .label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9.5px;
+      font-weight: bold;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+    .mpin .sublabel {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 7px;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      opacity: 0.8;
+    }
+
+    /* active marker */
+    .mpin.active .ring-outer { opacity: 1; animation: ringExpand 1.8s ease-out infinite; }
+    .mpin.active .dot { filter: drop-shadow(0 0 4px currentColor); }
+
+    @keyframes ringExpand {
+      0%   { r: 12; opacity: 0.8; }
+      100% { r: 26; opacity: 0; }
+    }
+
+    /* processing marker */
+    .mpin.processing .dot { animation: dotFlash 0.45s ease-in-out infinite alternate; }
+    @keyframes dotFlash { from { opacity:0.2; } to { opacity:1; } }
+
+    /* risk color on dot after deep analyze */
+    .mpin.risk-low  .dot { fill: var(--green) !important; stroke: var(--green) !important; }
+    .mpin.risk-med  .dot { fill: var(--yellow) !important; stroke: var(--yellow) !important; }
+    .mpin.risk-high .dot { fill: var(--orange) !important; stroke: var(--orange) !important; }
+    .mpin.risk-crit .dot { fill: var(--red) !important; stroke: var(--red) !important; }
+
+    /* ghost markets */
+    .mpin-ghost { opacity: 0.18; }
+    .mpin-ghost .label { fill: var(--text-mid); }
+    .mpin-ghost .dot { fill: var(--text-dim); stroke: var(--text-dim); }
+
+    /* ── RIGHT PANEL ─────────────────────────────────── */
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      background: var(--s1);
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* log */
+    #log {
+      flex: 1;
+      padding: 0.9rem 1rem;
+      overflow-y: auto;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.82rem;
+      line-height: 1.9;
+      min-height: 0;
+    }
+    #log::-webkit-scrollbar { width: 2px; }
+    #log::-webkit-scrollbar-thumb { background: var(--border-hi); }
+
+    .msg { padding: 0.15rem 0; }
+    .msg.user   { color: var(--amber); }
+    .msg.user::before   { content: '▶  '; }
+    .msg.agent  { color: var(--cyan); }
+    .msg.agent::before  { content: '◈  '; }
+    .msg.analysis { color: #86efac; white-space: pre-wrap; font-size: 0.75rem; line-height: 1.6; word-break: break-word; }
+    .msg.system { color: var(--text-mid); font-style: italic; }
+
+    /* speaking */
+    #speaking {
+      display: none;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.45rem 1rem;
+      border-top: 1px solid var(--border);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--cyan);
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+    }
+    .vubars {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 12px;
+    }
+    .vubar {
+      width: 3px;
+      background: var(--cyan);
+      border-radius: 1px;
+      animation: vu 0.4s ease-in-out infinite alternate;
+    }
+    .vubar:nth-child(1) { animation-delay:0s;     height:3px; }
+    .vubar:nth-child(2) { animation-delay:0.12s;  height:8px; }
+    .vubar:nth-child(3) { animation-delay:0.04s;  height:12px; }
+    .vubar:nth-child(4) { animation-delay:0.16s;  height:5px; }
+    .vubar:nth-child(5) { animation-delay:0.08s;  height:10px; }
+    @keyframes vu { from { transform:scaleY(0.25); } to { transform:scaleY(1); } }
+
+    /* Deep Analyze results */
+    #analyzeResults {
+      display: none;
+      flex-direction: column;
+      gap: 0.45rem;
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    #analyzeResults::-webkit-scrollbar { width: 2px; }
+    #analyzeResults::-webkit-scrollbar-thumb { background: var(--border-hi); }
+    .ar-header {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+      margin-bottom: 0.2rem;
+    }
+    .ar-row {
+      display: grid;
+      grid-template-columns: 30px 1fr 36px;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .ar-code {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .ar-track {
+      height: 5px;
+      background: var(--s3);
+      border-radius: 1px;
+      overflow: hidden;
+    }
+    .ar-fill {
+      height: 100%;
+      border-radius: 1px;
+      width: 0%;
+      transition: width 1s cubic-bezier(0.4,0,0.2,1);
+    }
+    .ar-score {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.78rem;
+      text-align: right;
+      color: var(--text-mid);
+    }
+
+    /* image preview */
+    #preview {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    #thumb { max-height: 44px; border-radius: 2px; border: 1px solid var(--amber-lo); }
+    .remove-img {
+      background: none; border: none;
+      color: var(--red); cursor: pointer;
+      font-size: 1rem; padding: 0;
+    }
+
+    /* ── CONTROLS ─────────────────────────────────────── */
+    .controls {
+      border-top: 1px solid var(--border);
+      background: var(--s1);
+      padding: 0.85rem 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+
+    #textInput {
+      flex: 1;
+      padding: 0 1rem;
+      height: 52px;
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text);
+      font-size: 0.875rem;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 500;
+      outline: none;
+      transition: border-color 0.2s;
+      letter-spacing: 0.02em;
+    }
+    #textInput:focus { border-color: var(--amber-lo); }
+    #textInput::placeholder { color: var(--text-dim); }
+
+    /* circular transport buttons */
+    .btn-round {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      border: 2px solid var(--border-hi);
+      background: var(--s2);
+      color: var(--text-mid);
+      font-size: 1.15rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.12s ease;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04), inset 0 -2px 0 rgba(0,0,0,0.25);
+      flex-shrink: 0;
+      outline: none;
+    }
+    .btn-round:hover {
+      border-color: var(--text-mid);
+      color: var(--text);
+      transform: translateY(-1px);
+      box-shadow: 0 5px 12px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .btn-round:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5), inset 0 2px 4px rgba(0,0,0,0.35);
+    }
+
+    #micBtn.active {
+      background: #3d0f0f;
+      border-color: var(--red);
+      color: var(--red);
+      box-shadow: 0 3px 8px rgba(239,68,68,0.25), inset 0 1px 0 rgba(255,255,255,0.04);
+      animation: micGlow 1.1s ease-in-out infinite;
+    }
+    @keyframes micGlow {
+      0%,100% { box-shadow: 0 3px 8px rgba(239,68,68,0.25), inset 0 1px 0 rgba(255,255,255,0.04); }
+      50%      { box-shadow: 0 3px 18px rgba(239,68,68,0.55), 0 0 24px rgba(239,68,68,0.15), inset 0 1px 0 rgba(255,255,255,0.04); }
+    }
+
+    #attachBtn.has-image {
+      border-color: #5b21b6;
+      color: var(--fr);
+    }
+
+    /* rectangular action buttons */
+    .btn-rect {
+      height: 52px;
+      padding: 0 1.4rem;
+      border-radius: 2px;
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: all 0.12s ease;
+      outline: none;
+      flex-shrink: 0;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04), inset 0 -2px 0 rgba(0,0,0,0.25);
+    }
+    .btn-rect:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5), inset 0 2px 4px rgba(0,0,0,0.35);
+    }
+
+    #sendBtn {
+      background: var(--s3);
+      border: 2px solid var(--amber-lo);
+      color: var(--amber);
+    }
+    #sendBtn:hover {
+      background: rgba(245,158,11,0.08);
+      border-color: var(--amber);
+      box-shadow: 0 3px 12px rgba(245,158,11,0.18), inset 0 1px 0 rgba(255,255,255,0.04);
+      transform: translateY(-1px);
+    }
+
+    #analyzeBtn {
+      background: linear-gradient(160deg, #052e1c, #064e3b);
+      border: 2px solid #065f46;
+      color: #34d399;
+      padding: 0 1.6rem;
+    }
+    #analyzeBtn:hover {
+      background: linear-gradient(160deg, #064e3b, #065f46);
+      border-color: #10b981;
+      box-shadow: 0 3px 14px rgba(0,0,0,0.5), 0 0 24px rgba(52,211,153,0.15), inset 0 1px 0 rgba(255,255,255,0.04);
+      transform: translateY(-1px);
+    }
+    #analyzeBtn.processing {
+      animation: analyzeGlow 1s ease-in-out infinite;
+    }
+    @keyframes analyzeGlow {
+      0%,100% { box-shadow: 0 3px 8px rgba(0,0,0,0.5), 0 0 12px rgba(52,211,153,0.1); }
+      50%      { box-shadow: 0 3px 14px rgba(0,0,0,0.5), 0 0 30px rgba(52,211,153,0.3); }
+    }
+
+    .status-line {
+      margin-top: 0.5rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-mid);
+      letter-spacing: 0.06em;
+      text-align: center;
+      min-height: 1em;
+    }
+
+    input[type="file"] { display: none; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Cultural Risk Intelligence</h1>
-    <p class="subtitle">Real-time Cultural Risk Analysis via Gemini Live API</p>
-    <div id="log"><div class="msg system">Connecting...</div></div>
-    <div id="preview"><img id="thumb" /><button class="remove" id="removeImg">&times;</button></div>
-    <input type="file" id="fileInput" accept="image/*" hidden />
-    <div class="controls">
-      <button id="micBtn" title="Voice input">&#x1f3a4;</button>
-      <button id="attachBtn" title="Attach image">&#x1f4ce;</button>
-      <input type="text" id="input" placeholder="Ask about cultural risks..." />
-      <button id="sendBtn">Send</button>
-      <button id="analyzeBtn">Deep Analyze</button>
-    </div>
-    <div class="status" id="status"></div>
-    <div id="speaking">&#x1f50a; Speaking...</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <span class="logo-title">Cultural Risk Intelligence</span>
+    <span class="logo-sub">Powered by Gemini Live API</span>
   </div>
-  <script>
-    const log = document.getElementById("log");
-    const input = document.getElementById("input");
-    const sendBtn = document.getElementById("sendBtn");
-    const analyzeBtn = document.getElementById("analyzeBtn");
-    const micBtn = document.getElementById("micBtn");
-    const attachBtn = document.getElementById("attachBtn");
-    const fileInput = document.getElementById("fileInput");
-    const preview = document.getElementById("preview");
-    const thumb = document.getElementById("thumb");
-    const removeImg = document.getElementById("removeImg");
-    const status = document.getElementById("status");
 
-    let ws;
-    let mediaStream;
-    let audioCtx;
-    let recording = false;
-    const speaking = document.getElementById("speaking");
+  <div class="market-row">
+    <div class="chip" id="chip-jp"><span class="led"></span>JP</div>
+    <div class="chip" id="chip-us"><span class="led"></span>US</div>
+    <div class="chip" id="chip-fr"><span class="led"></span>FR</div>
+    <div class="chip" id="chip-de"><span class="led"></span>DE</div>
+  </div>
 
-    /* --- Image attachment state --- */
-    let pendingImage = null;   // { base64, mime_type }
+  <div class="conn">
+    <div class="conn-dot" id="connDot"></div>
+    <span id="connLabel">OFFLINE</span>
+  </div>
+</header>
 
-    attachBtn.onclick = () => fileInput.click();
+<!-- MAIN -->
+<div class="main">
 
-    fileInput.onchange = () => {
-      const file = fileInput.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        const dataUrl = reader.result;                       // data:image/png;base64,xxxxx
-        const base64 = dataUrl.split(",")[1];
-        const mime_type = file.type || "image/jpeg";
-        pendingImage = { base64, mime_type };
-        thumb.src = dataUrl;
-        preview.style.display = "flex";
-        attachBtn.classList.add("has-image");
-      };
-      reader.readAsDataURL(file);
-      fileInput.value = "";
+  <!-- MAP -->
+  <div class="map-panel">
+    <div class="panel-bar">
+      <span class="panel-bar-label">Market Coverage</span>
+      <span class="panel-bar-tag">4 active agents · extensible via YAML</span>
+    </div>
+    <div class="map-wrap">
+      <svg id="worldMap" viewBox="0 0 820 430" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="seaDots" x="0" y="0" width="14" height="14" patternUnits="userSpaceOnUse">
+            <circle cx="7" cy="7" r="0.8" fill="#0a0a16"/>
+          </pattern>
+          <linearGradient id="landGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#4a6e5a"/>
+            <stop offset="100%" stop-color="#2e4a3a"/>
+          </linearGradient>
+          <radialGradient id="vignette" cx="50%" cy="48%" r="65%">
+            <stop offset="0%" stop-color="transparent"/>
+            <stop offset="100%" stop-color="rgba(8,8,14,0.72)"/>
+          </radialGradient>
+          <linearGradient id="equatorGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="transparent"/>
+            <stop offset="25%" stop-color="rgba(0,207,234,0.18)"/>
+            <stop offset="75%" stop-color="rgba(0,207,234,0.18)"/>
+            <stop offset="100%" stop-color="transparent"/>
+          </linearGradient>
+          <filter id="pinGlow" x="-150%" y="-150%" width="400%" height="400%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b"/>
+            <feComposite in="SourceGraphic" in2="b" operator="over"/>
+          </filter>
+        </defs>
+
+        <!-- Ocean -->
+        <rect width="820" height="430" fill="#050508"/>
+        <rect width="820" height="430" fill="url(#seaDots)"/>
+
+        <!-- Graticule -->
+        <g stroke="#141422" stroke-width="0.6" fill="none">
+          <line x1="0" y1="43" x2="820" y2="43"/>
+          <line x1="0" y1="96" x2="820" y2="96"/>
+          <line x1="0" y1="155" x2="820" y2="155"/>
+          <line x1="0" y1="215" x2="820" y2="215"/>
+          <line x1="0" y1="274" x2="820" y2="274"/>
+          <line x1="0" y1="334" x2="820" y2="334"/>
+          <line x1="205" y1="0" x2="205" y2="430"/>
+          <line x1="410" y1="0" x2="410" y2="430"/>
+          <line x1="615" y1="0" x2="615" y2="430"/>
+        </g>
+        <line x1="0" y1="215" x2="820" y2="215" stroke="url(#equatorGrad)" stroke-width="1.2"/>
+
+        <!-- Greenland -->
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.7"
+          d="M 248,20 L 275,14 L 302,20 L 310,36 L 300,50 L 278,58 L 254,48 Z"/>
+
+        <!-- North America -->
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.8"
+          d="M 24,86 L 42,64 L 70,57 L 90,67 L 112,60 L 136,52 L 168,44 L 204,40
+             L 240,54 L 255,70 L 282,72 L 292,90 L 265,105 L 242,115 L 234,130
+             L 226,152 L 215,143 L 200,148 L 190,151 L 184,170 L 196,170 L 209,175
+             L 215,186 L 218,194
+             L 212,190 L 203,178 L 193,172 L 172,167 L 161,158 L 147,136
+             L 128,100 L 118,88 L 96,76 L 72,80 L 42,82 Z"/>
+
+        <!-- South America -->
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.8"
+          d="M 218,194 L 224,198 L 245,186 L 264,178 L 295,176 L 330,175
+             L 345,194 L 348,224 L 338,265 L 315,296 L 296,308 L 274,318
+             L 258,345 L 248,385 L 238,390 L 232,364 L 218,338
+             L 208,305 L 200,268 L 200,248 L 210,218 Z"/>
+
+        <!-- Europe -->
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.7"
+          d="M 390,128 L 390,108 L 396,100 L 399,98 L 407,94 L 399,88
+             L 402,78 L 406,74 L 418,76 L 430,76 L 442,52 L 464,50
+             L 472,58 L 468,72 L 460,82 L 448,88 L 444,106 L 438,112
+             L 444,128 L 436,132 L 428,128 L 418,114 L 408,126 L 396,130 Z"/>
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.6"
+          d="M 390,108 L 396,100 L 390,128 L 380,124 L 378,112 L 382,104 Z"/>
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.5"
+          d="M 400,78 L 412,74 L 415,86 L 406,94 L 398,90 Z"/>
+
+        <!-- Africa -->
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.8"
+          d="M 396,130 L 432,126 L 465,140 L 523,188 L 509,224
+             L 495,253 L 448,285 L 432,272 L 426,250 L 415,200 L 406,202
+             L 376,188 L 370,175 L 372,155 L 380,148 Z"/>
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.5"
+          d="M 452,268 L 462,258 L 468,278 L 460,300 L 450,296 Z"/>
+
+        <!-- Arabian Peninsula -->
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.6"
+          d="M 466,118 L 493,112 L 512,118 L 528,140 L 516,178 L 502,196
+             L 488,192 L 474,178 L 466,158 L 444,158 L 434,148 Z"/>
+
+        <!-- Asia main body -->
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.8"
+          d="M 466,118 L 434,148 L 444,158 L 466,158 L 474,178 L 488,192
+             L 502,196 L 516,178 L 528,140 L 542,158 L 558,175
+             L 566,210 L 580,202 L 596,186 L 610,180 L 614,162
+             L 630,190 L 636,213 L 650,192 L 668,162 L 678,138
+             L 692,128 L 714,112 L 752,100 L 792,72 L 820,58
+             L 820,24 L 790,20 L 750,18 L 700,20 L 650,22
+             L 600,20 L 550,24 L 508,28 L 468,34 L 444,42
+             L 440,58 L 448,82 L 456,100 L 460,112 Z"/>
+        <!-- India -->
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.6"
+          d="M 542,158 L 558,175 L 566,210 L 580,202 L 596,186
+             L 610,180 L 614,162 L 596,162 L 578,170 L 562,162 Z"/>
+        <!-- SE Asia -->
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.6"
+          d="M 630,190 L 650,192 L 668,162 L 660,155 L 644,162 L 632,178 Z"/>
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.5"
+          d="M 648,192 L 660,190 L 664,210 L 654,220 L 645,212 Z"/>
+
+        <!-- Japan: Hokkaido -->
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.6"
+          d="M 731,114 L 744,108 L 754,114 L 752,124 L 740,128 L 730,124 Z"/>
+        <!-- Japan: Honshu -->
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.6"
+          d="M 730,124 L 740,128 L 752,124 L 754,136 L 744,142
+             L 730,140 L 718,136 L 706,142 L 702,150 L 710,154
+             L 722,150 L 730,140 Z"/>
+        <!-- Kyushu -->
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.4"
+          d="M 706,142 L 716,140 L 720,150 L 712,158 L 706,152 Z"/>
+
+        <!-- Australia -->
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.7"
+          d="M 628,318 L 668,308 L 710,312 L 740,328 L 752,354
+             L 744,378 L 718,394 L 684,396 L 648,388 L 622,368 L 612,344 Z"/>
+        <path fill="url(#landGrad)" stroke="#6a9070" stroke-width="0.4"
+          d="M 766,354 L 774,348 L 780,360 L 774,370 L 765,366 Z"/>
+
+        <!-- Market arc connections (dashed, very subtle) -->
+        <path fill="none" stroke="rgba(167,139,250,0.15)" stroke-width="0.9" stroke-dasharray="3,5"
+          d="M 241,118 Q 328,50 415,98"/>
+        <path fill="none" stroke="rgba(248,113,113,0.13)" stroke-width="0.9" stroke-dasharray="3,5"
+          d="M 415,98 Q 572,38 728,130"/>
+        <path fill="none" stroke="rgba(56,189,248,0.10)" stroke-width="0.9" stroke-dasharray="3,5"
+          d="M 241,118 Q 484,42 728,130"/>
+        <path fill="none" stroke="rgba(251,191,36,0.12)" stroke-width="0.9" stroke-dasharray="3,5"
+          d="M 441,90 Q 590,36 728,130"/>
+
+        <!-- Atmosphere vignette -->
+        <rect width="820" height="430" fill="url(#vignette)"/>
+
+        <!-- Animated scan line -->
+        <rect width="2" height="430" fill="rgba(0,207,234,0.07)" x="-2">
+          <animateTransform attributeName="transform" type="translate"
+            from="-2 0" to="822 0" dur="9s" repeatCount="indefinite"/>
+        </rect>
+        <rect width="1" height="430" fill="rgba(0,207,234,0.04)" x="-1">
+          <animateTransform attributeName="transform" type="translate"
+            from="-1 0" to="821 0" dur="9s" begin="4.5s" repeatCount="indefinite"/>
+        </rect>
+
+        <!-- ── MARKET PINS ── -->
+        <!-- US: NYC lon=-74 lat=40.7 -->
+        <g id="pin-us" class="mpin" data-market="us" filter="url(#pinGlow)">
+          <circle class="ring-outer" cx="241" cy="118" r="12" stroke="var(--us)"/>
+          <circle class="ring-inner" cx="241" cy="118" r="8" stroke="var(--us)"/>
+          <circle class="dot" cx="241" cy="118" r="4.5" fill="var(--us)" stroke="var(--us)"/>
+          <text class="label" x="241" y="134" fill="var(--us)">US</text>
+        </g>
+
+        <!-- FR: Paris lon=2.35 lat=48.85 -->
+        <g id="pin-fr" class="mpin" data-market="fr" filter="url(#pinGlow)">
+          <circle class="ring-outer" cx="415" cy="98" r="12" stroke="var(--fr)"/>
+          <circle class="ring-inner" cx="415" cy="98" r="8" stroke="var(--fr)"/>
+          <circle class="dot" cx="415" cy="98" r="4.5" fill="var(--fr)" stroke="var(--fr)"/>
+          <text class="label" x="415" y="86" fill="var(--fr)">FR</text>
+        </g>
+
+        <!-- DE: Berlin lon=13.4 lat=52.5 -->
+        <g id="pin-de" class="mpin" data-market="de" filter="url(#pinGlow)">
+          <circle class="ring-outer" cx="441" cy="90" r="12" stroke="var(--de)"/>
+          <circle class="ring-inner" cx="441" cy="90" r="8" stroke="var(--de)"/>
+          <circle class="dot" cx="441" cy="90" r="4.5" fill="var(--de)" stroke="var(--de)"/>
+          <text class="label" x="460" y="84" fill="var(--de)">DE</text>
+        </g>
+
+        <!-- JP: Tokyo lon=139.7 lat=35.7 -->
+        <g id="pin-jp" class="mpin" data-market="jp" filter="url(#pinGlow)">
+          <circle class="ring-outer" cx="728" cy="130" r="12" stroke="var(--jp)"/>
+          <circle class="ring-inner" cx="728" cy="130" r="8" stroke="var(--jp)"/>
+          <circle class="dot" cx="728" cy="130" r="4.5" fill="var(--jp)" stroke="var(--jp)"/>
+          <text class="label" x="728" y="118" fill="var(--jp)">JP</text>
+        </g>
+
+        <!-- Ghost markets -->
+        <g class="mpin-ghost">
+          <circle cx="699" cy="125" r="3" fill="#383848" stroke="#383848"/>
+          <text x="699" y="137" style="font-family:'Share Tech Mono',monospace;font-size:8px;text-anchor:middle;fill:#9090b0">KR</text>
+        </g>
+        <g class="mpin-ghost">
+          <circle cx="684" cy="360" r="3" fill="#383848" stroke="#383848"/>
+          <text x="684" y="372" style="font-family:'Share Tech Mono',monospace;font-size:8px;text-anchor:middle;fill:#9090b0">AU</text>
+        </g>
+        <g class="mpin-ghost">
+          <circle cx="304" cy="272" r="3" fill="#383848" stroke="#383848"/>
+          <text x="304" y="284" style="font-family:'Share Tech Mono',monospace;font-size:8px;text-anchor:middle;fill:#9090b0">BR</text>
+        </g>
+
+        <!-- Legend -->
+        <g transform="translate(14,406)">
+          <circle cx="5"   cy="5" r="3" fill="var(--green)"/>
+          <text x="12"  y="9" style="font-family:'Share Tech Mono',monospace;font-size:9px;fill:#b0b0cc">LOW</text>
+          <circle cx="48"  cy="5" r="3" fill="var(--yellow)"/>
+          <text x="55"  y="9" style="font-family:'Share Tech Mono',monospace;font-size:9px;fill:#b0b0cc">MED</text>
+          <circle cx="92"  cy="5" r="3" fill="var(--orange)"/>
+          <text x="99"  y="9" style="font-family:'Share Tech Mono',monospace;font-size:9px;fill:#b0b0cc">HIGH</text>
+          <circle cx="138" cy="5" r="3" fill="var(--red)"/>
+          <text x="145" y="9" style="font-family:'Share Tech Mono',monospace;font-size:9px;fill:#b0b0cc">CRIT</text>
+          <circle cx="185" cy="5" r="3" fill="#333"/>
+          <text x="192" y="9" style="font-family:'Share Tech Mono',monospace;font-size:9px;fill:#9090b0">AGENT NOT DEPLOYED</text>
+        </g>
+
+      </svg>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="panel-bar">
+      <span class="panel-bar-label">Session Log</span>
+    </div>
+
+    <div id="log">
+      <div class="msg system">Initializing...</div>
+    </div>
+
+    <!-- speaking indicator -->
+    <div id="speaking">
+      <div class="vubars">
+        <div class="vubar"></div><div class="vubar"></div><div class="vubar"></div>
+        <div class="vubar"></div><div class="vubar"></div>
+      </div>
+      ADVISOR SPEAKING
+    </div>
+
+    <!-- deep analyze results -->
+    <div id="analyzeResults">
+      <div class="ar-header">Deep Analysis · Risk Score</div>
+      <div class="ar-row" id="ar-jp">
+        <span class="ar-code" style="color:var(--jp)">JP</span>
+        <div class="ar-track"><div class="ar-fill" id="fill-jp" style="background:var(--jp)"></div></div>
+        <span class="ar-score" id="score-jp">—</span>
+      </div>
+      <div class="ar-row" id="ar-us">
+        <span class="ar-code" style="color:var(--us)">US</span>
+        <div class="ar-track"><div class="ar-fill" id="fill-us" style="background:var(--us)"></div></div>
+        <span class="ar-score" id="score-us">—</span>
+      </div>
+      <div class="ar-row" id="ar-fr">
+        <span class="ar-code" style="color:var(--fr)">FR</span>
+        <div class="ar-track"><div class="ar-fill" id="fill-fr" style="background:var(--fr)"></div></div>
+        <span class="ar-score" id="score-fr">—</span>
+      </div>
+      <div class="ar-row" id="ar-de">
+        <span class="ar-code" style="color:var(--de)">DE</span>
+        <div class="ar-track"><div class="ar-fill" id="fill-de" style="background:var(--de)"></div></div>
+        <span class="ar-score" id="score-de">—</span>
+      </div>
+    </div>
+
+    <!-- image preview -->
+    <div id="preview">
+      <img id="thumb"/>
+      <button class="remove-img" id="removeImg">&times;</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <input type="file" id="fileInput" accept="image/*"/>
+  <div class="controls-row">
+    <button class="btn-round" id="micBtn" title="Voice input">🎤</button>
+    <button class="btn-round" id="attachBtn" title="Attach image">📎</button>
+    <input type="text" id="textInput" placeholder="Speak to the advisor, or type here..."/>
+    <button class="btn-rect" id="sendBtn">Send</button>
+    <button class="btn-rect" id="analyzeBtn">⬡ Deep Analyze</button>
+  </div>
+  <div class="status-line" id="statusLine"></div>
+</div>
+
+<script>
+  // ── DOM refs ──────────────────────────────────────────
+  const log        = document.getElementById('log');
+  const textInput  = document.getElementById('textInput');
+  const sendBtn    = document.getElementById('sendBtn');
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const micBtn     = document.getElementById('micBtn');
+  const attachBtn  = document.getElementById('attachBtn');
+  const fileInput  = document.getElementById('fileInput');
+  const preview    = document.getElementById('preview');
+  const thumb      = document.getElementById('thumb');
+  const removeImg  = document.getElementById('removeImg');
+  const statusLine = document.getElementById('statusLine');
+  const speaking   = document.getElementById('speaking');
+  const connDot    = document.getElementById('connDot');
+  const connLabel  = document.getElementById('connLabel');
+  const analyzeResults = document.getElementById('analyzeResults');
+
+  // market UI elements
+  const chips = { jp:'chip-jp', us:'chip-us', fr:'chip-fr', de:'chip-de' };
+  const pins  = { jp:'pin-jp',  us:'pin-us',  fr:'pin-fr',  de:'pin-de'  };
+
+  // ── State ─────────────────────────────────────────────
+  let ws, mediaStream, audioCtx;
+  let recording = false;
+  let pendingImage = null;
+  let activeMarket = null;
+
+  // ── Image attachment ──────────────────────────────────
+  attachBtn.onclick = () => fileInput.click();
+  fileInput.onchange = () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      pendingImage = { base64: dataUrl.split(',')[1], mime_type: file.type || 'image/jpeg' };
+      thumb.src = dataUrl;
+      preview.style.display = 'flex';
+      attachBtn.classList.add('has-image');
     };
+    reader.readAsDataURL(file);
+    fileInput.value = '';
+  };
+  removeImg.onclick = () => {
+    pendingImage = null;
+    preview.style.display = 'none';
+    attachBtn.classList.remove('has-image');
+  };
 
-    removeImg.onclick = () => {
-      pendingImage = null;
-      preview.style.display = "none";
-      attachBtn.classList.remove("has-image");
-    };
-    /* ----------------------------- */
-
-    /* --- Audio playback queue (PCM 16-bit 24 kHz mono) --- */
-    let playbackCtx;
-    const audioQueue = [];
-    let isPlaying = false;
-    let nextStartTime = 0;
-
-    function showSpeaking() { speaking.style.display = "block"; }
-    function hideSpeaking() { speaking.style.display = "none"; }
-
-    function playAudio(buffer) {
-      if (!playbackCtx) playbackCtx = new AudioContext({ sampleRate: 24000 });
-      /* PCM s16le → Float32 */
-      const samples = buffer.byteLength / 2;
-      const float32 = new Float32Array(samples);
-      const view = new DataView(buffer);
-      for (let i = 0; i < samples; i++) {
-        float32[i] = view.getInt16(i * 2, true) / 32768;
-      }
-      audioQueue.push(float32);
-      if (!isPlaying) drainQueue();
-    }
-
-    function drainQueue() {
-      if (audioQueue.length === 0) { isPlaying = false; hideSpeaking(); return; }
-      isPlaying = true;
-      showSpeaking();
-
-      const float32 = audioQueue.shift();
-      const ab = playbackCtx.createBuffer(1, float32.length, 24000);
-      ab.copyToChannel(float32, 0);
-      const src = playbackCtx.createBufferSource();
-      src.buffer = ab;
-      src.connect(playbackCtx.destination);
-
-      const now = playbackCtx.currentTime;
-      const start = Math.max(now, nextStartTime);
-      activeSources.push(src);
-      src.start(start);
-      nextStartTime = start + ab.duration;
-      src.onended = () => {
-        const idx = activeSources.indexOf(src);
-        if (idx !== -1) activeSources.splice(idx, 1);
-        drainQueue();
-      };
-    }
-    /* ---------------------------------------------------- */
-
-    /* 再生中断: キューをクリアし再生中のSourceを停止 */
-    const activeSources = [];
-
-    function stopPlayback() {
-      audioQueue.length = 0;
-      isPlaying = false;
-      nextStartTime = 0;
-      for (const src of activeSources) {
-        try { src.stop(); } catch(_) {}
-      }
-      activeSources.length = 0;
-      hideSpeaking();
-    }
-
-    function addMsg(text, cls) {
-      const div = document.createElement("div");
-      div.className = "msg " + cls;
-      div.textContent = text;
-      log.appendChild(div);
-      log.scrollTop = log.scrollHeight;
-    }
-
-    function connect() {
-      const proto = location.protocol === "https:" ? "wss:" : "ws:";
-      ws = new WebSocket(`${proto}//${location.host}/ws/live`);
-      ws.binaryType = "arraybuffer";
-
-      ws.onopen = () => {
-        addMsg("Connected", "system");
-        status.textContent = "";
-      };
-      ws.onmessage = (e) => {
-        if (typeof e.data === "string") {
-          const msg = JSON.parse(e.data);
-          if (msg.type === "text") addMsg(msg.data, "agent");
-          else if (msg.type === "analysis") addMsg(msg.data, "analysis");
-        } else {
-          playAudio(e.data);
-        }
-      };
-      ws.onclose = () => {
-        addMsg("Disconnected. Reconnecting...", "system");
-        setTimeout(connect, 3000);
-      };
-    }
-
-    sendBtn.onclick = () => {
-      const text = input.value.trim();
-      if ((!text && !pendingImage) || ws.readyState !== 1) return;
-      addMsg(text || "(image)", "user");
-      const payload = { type: "message", data: text };
-      if (pendingImage) {
-        payload.image = pendingImage.base64;
-        payload.mime_type = pendingImage.mime_type;
-      }
-      ws.send(JSON.stringify(payload));
-      input.value = "";
-      pendingImage = null;
-      preview.style.display = "none";
-      attachBtn.classList.remove("has-image");
-    };
-
-    analyzeBtn.onclick = () => {
-      const text = input.value.trim();
-      if (!text || ws.readyState !== 1) return;
-      addMsg(`[Deep Analysis] ${text}`, "user");
-      const payload = { type: "analyze", query: text };
-      if (pendingImage) {
-        payload.image = pendingImage.base64;
-        payload.mime_type = pendingImage.mime_type;
-      }
-      ws.send(JSON.stringify(payload));
-      input.value = "";
-      pendingImage = null;
-      preview.style.display = "none";
-      attachBtn.classList.remove("has-image");
-      status.textContent = "Analyzing all markets in parallel...";
-      setTimeout(() => { status.textContent = ""; }, 15000);
-    };
-
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") sendBtn.click();
+  // ── Market indicator helpers ──────────────────────────
+  function clearAllMarkers() {
+    Object.keys(chips).forEach(m => {
+      const c = document.getElementById(chips[m]);
+      c.className = 'chip';
+      const p = document.getElementById(pins[m]);
+      p.classList.remove('active','processing');
     });
+  }
 
-    micBtn.onclick = async () => {
-      if (recording) {
-        recording = false;
-        micBtn.classList.remove("active");
-        if (mediaStream) mediaStream.getTracks().forEach((t) => t.stop());
-        return;
+  function setActiveMarket(market) {
+    clearAllMarkers();
+    if (!market) return;
+    activeMarket = market;
+    const c = document.getElementById(chips[market]);
+    if (c) c.className = `chip active-${market}`;
+    const p = document.getElementById(pins[market]);
+    if (p) p.classList.add('active');
+  }
+
+  function setProcessingMarkets(markets) {
+    clearAllMarkers();
+    markets.forEach(m => {
+      const c = document.getElementById(chips[m]);
+      if (c) { c.className = `chip deep-active-${m} pulsing`; }
+      const p = document.getElementById(pins[m]);
+      if (p) p.classList.add('processing');
+    });
+  }
+
+  // Infer active market from message text
+  function detectMarket(text) {
+    const t = text.toLowerCase();
+    if (t.includes('japan') || t.includes('japanese') || t.includes(' jp ')) return 'jp';
+    if (t.includes('united states') || t.includes(' us ') || t.includes('america') || t.includes('u.s.')) return 'us';
+    if (t.includes('france') || t.includes('french') || t.includes(' fr ')) return 'fr';
+    if (t.includes('german') || t.includes('germany') || t.includes(' de ')) return 'de';
+    return null;
+  }
+
+  // ── Risk score helpers ────────────────────────────────
+  function scoreToColor(score) {
+    if (score <= 30) return 'var(--green)';
+    if (score <= 55) return 'var(--yellow)';
+    if (score <= 75) return 'var(--orange)';
+    return 'var(--red)';
+  }
+  function scoreToRiskClass(score) {
+    if (score <= 30) return 'risk-low';
+    if (score <= 55) return 'risk-med';
+    if (score <= 75) return 'risk-high';
+    return 'risk-crit';
+  }
+
+  // Parse risk scores from analysis text
+  function parseScores(text) {
+    const markets = ['JP', 'US', 'FR', 'DE'];
+    const scores = {};
+    markets.forEach(m => {
+      // Try to find explicit score: "JP: 72" or "JP — 72" etc.
+      const re = new RegExp(`${m}[^\\d]*(\\d{1,3})\\s*[\\/\\%]?`, 'i');
+      const match = text.match(re);
+      if (match) {
+        let v = parseInt(match[1]);
+        if (v > 100) v = Math.min(v, 100);
+        scores[m.toLowerCase()] = v;
       }
-      try {
-        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: { sampleRate: 16000, channelCount: 1 } });
-        if (!audioCtx) audioCtx = new AudioContext({ sampleRate: 16000 });
-        const source = audioCtx.createMediaStreamSource(mediaStream);
-        const processor = audioCtx.createScriptProcessor(4096, 1, 1);
-        processor.onaudioprocess = (e) => {
-          if (!recording || ws.readyState !== 1) return;
-          const float32 = e.inputBuffer.getChannelData(0);
-          /* 簡易VAD: RMSが閾値以上のときだけ送信 */
-          let rms = 0;
-          for (let i = 0; i < float32.length; i++) rms += float32[i] * float32[i];
-          rms = Math.sqrt(rms / float32.length);
-          console.log("[MIC] rms:", rms.toFixed(4));
-          if (rms < 0.01) return;   // 無音はスキップ
-          /* 話し始めたら再生を止める（割り込み） */
-          if (isPlaying) stopPlayback();
-          const int16 = new Int16Array(float32.length);
-          for (let i = 0; i < float32.length; i++) {
-            int16[i] = Math.max(-32768, Math.min(32767, float32[i] * 32768));
-          }
-          ws.send(int16.buffer);
-        };
-        source.connect(processor);
-        processor.connect(audioCtx.destination);
-        recording = true;
-        micBtn.classList.add("active");
-      } catch (err) {
-        addMsg("Microphone access denied", "system");
+    });
+    // Fallback: keyword-based heuristic
+    const riskWords = {
+      critical: 90, high: 75, significant: 68, moderate: 50,
+      medium: 45, low: 25, minimal: 15, minor: 20
+    };
+    markets.forEach(m => {
+      if (scores[m.toLowerCase()]) return;
+      const lc = text.toLowerCase();
+      const idx = lc.indexOf(m.toLowerCase());
+      if (idx < 0) return;
+      const snippet = lc.slice(Math.max(0, idx - 30), idx + 80);
+      for (const [word, val] of Object.entries(riskWords)) {
+        if (snippet.includes(word)) { scores[m.toLowerCase()] = val; break; }
+      }
+      if (!scores[m.toLowerCase()]) scores[m.toLowerCase()] = 50;
+    });
+    return scores;
+  }
+
+  function showAnalyzeResults(scores) {
+    analyzeResults.style.display = 'flex';
+    ['jp','us','fr','de'].forEach(m => {
+      const s = scores[m] || 50;
+      const fill  = document.getElementById(`fill-${m}`);
+      const score = document.getElementById(`score-${m}`);
+      const pin   = document.getElementById(pins[m]);
+      const color = scoreToColor(s);
+      setTimeout(() => {
+        fill.style.width = s + '%';
+        fill.style.background = color;
+        score.textContent = s;
+        score.style.color = color;
+        if (pin) {
+          pin.classList.remove('processing');
+          pin.className = `mpin ${scoreToRiskClass(s)}`;
+        }
+        // update chip color
+        const c = document.getElementById(chips[m]);
+        if (c) {
+          c.className = `chip deep-active-${m}`;
+          c.querySelector('.led').style.background = color;
+          c.querySelector('.led').style.boxShadow = `0 0 7px ${color}`;
+        }
+      }, (['jp','us','fr','de'].indexOf(m) * 180));
+    });
+  }
+
+  // ── Audio playback ────────────────────────────────────
+  let playbackCtx, audioQueue = [], isPlaying = false, nextStartTime = 0;
+  const activeSources = [];
+
+  function showSpeaking() { speaking.style.display = 'flex'; }
+  function hideSpeaking() { speaking.style.display = 'none'; }
+
+  function playAudio(buffer) {
+    if (!playbackCtx) playbackCtx = new AudioContext({ sampleRate: 24000 });
+    const samples = buffer.byteLength / 2;
+    const f32 = new Float32Array(samples);
+    const view = new DataView(buffer);
+    for (let i = 0; i < samples; i++) f32[i] = view.getInt16(i * 2, true) / 32768;
+    audioQueue.push(f32);
+    if (!isPlaying) drainQueue();
+  }
+
+  function drainQueue() {
+    if (!audioQueue.length) { isPlaying = false; hideSpeaking(); return; }
+    isPlaying = true; showSpeaking();
+    const f32 = audioQueue.shift();
+    const ab = playbackCtx.createBuffer(1, f32.length, 24000);
+    ab.copyToChannel(f32, 0);
+    const src = playbackCtx.createBufferSource();
+    src.buffer = ab; src.connect(playbackCtx.destination);
+    const now = playbackCtx.currentTime;
+    const start = Math.max(now, nextStartTime);
+    activeSources.push(src);
+    src.start(start);
+    nextStartTime = start + ab.duration;
+    src.onended = () => {
+      const i = activeSources.indexOf(src);
+      if (i !== -1) activeSources.splice(i, 1);
+      drainQueue();
+    };
+  }
+
+  function stopPlayback() {
+    audioQueue.length = 0; isPlaying = false; nextStartTime = 0;
+    activeSources.forEach(s => { try { s.stop(); } catch(_) {} });
+    activeSources.length = 0; hideSpeaking();
+  }
+
+  // ── Log helper ────────────────────────────────────────
+  function addMsg(text, cls) {
+    const d = document.createElement('div');
+    d.className = 'msg ' + cls;
+    d.textContent = text;
+    log.appendChild(d);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  // ── WebSocket ─────────────────────────────────────────
+  function connect() {
+    const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    ws = new WebSocket(`${proto}//${location.host}/ws/live`);
+    ws.binaryType = 'arraybuffer';
+
+    ws.onopen = () => {
+      connDot.classList.add('on');
+      connLabel.textContent = 'LIVE';
+      addMsg('Session ready. Advisor is standing by.', 'system');
+      statusLine.textContent = '';
+    };
+
+    // ── Text buffering for streaming transcription ──────
+    let agentBuffer = '';
+    let agentDiv = null;
+    let agentFlushTimer = null;
+
+    function flushAgentBuffer() {
+      if (!agentBuffer) return;
+      const m = detectMarket(agentBuffer);
+      if (m) setActiveMarket(m);
+      agentBuffer = '';
+      agentDiv = null;
+      agentFlushTimer = null;
+    }
+
+    function appendAgentText(chunk) {
+      agentBuffer += chunk;
+      if (!agentDiv) {
+        agentDiv = document.createElement('div');
+        agentDiv.className = 'msg agent';
+        log.appendChild(agentDiv);
+      }
+      agentDiv.textContent = agentBuffer;
+      log.scrollTop = log.scrollHeight;
+      // flush after 1.5s of silence
+      clearTimeout(agentFlushTimer);
+      agentFlushTimer = setTimeout(flushAgentBuffer, 1500);
+    }
+
+    ws.onmessage = (e) => {
+      if (typeof e.data === 'string') {
+        const msg = JSON.parse(e.data);
+        if (msg.type === 'text') {
+          appendAgentText(msg.data);
+        } else if (msg.type === 'analysis') {
+          // flush any pending agent text first
+          flushAgentBuffer();
+          addMsg(msg.data, 'analysis');
+          analyzeBtn.classList.remove('processing');
+          statusLine.textContent = '';
+          const scores = parseScores(msg.data);
+          showAnalyzeResults(scores);
+          clearAllMarkers();
+        }
+      } else {
+        playAudio(e.data);
       }
     };
 
-    connect();
-  </script>
+    ws.onclose = () => {
+      connDot.classList.remove('on');
+      connLabel.textContent = 'OFFLINE';
+      addMsg('Connection lost. Reconnecting...', 'system');
+      setTimeout(connect, 3000);
+    };
+  }
+
+  // ── Send message ──────────────────────────────────────
+  sendBtn.onclick = () => {
+    const text = textInput.value.trim();
+    if ((!text && !pendingImage) || ws?.readyState !== 1) return;
+    addMsg(text || '(image)', 'user');
+    const payload = { type: 'message', data: text };
+    if (pendingImage) { payload.image = pendingImage.base64; payload.mime_type = pendingImage.mime_type; }
+    lastQuery = text;
+    ws.send(JSON.stringify(payload));
+    textInput.value = '';
+    pendingImage = null;
+    preview.style.display = 'none';
+    attachBtn.classList.remove('has-image');
+  };
+
+  textInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendBtn.click(); });
+
+  // ── Deep Analyze ──────────────────────────────────────
+  let lastQuery = '';
+  analyzeBtn.onclick = () => {
+    const text = textInput.value.trim() || lastQuery;
+    if (!text) {
+      statusLine.textContent = 'Type a query first, then press Deep Analyze.';
+      setTimeout(() => { statusLine.textContent = ''; }, 3000);
+      return;
+    }
+    if (ws?.readyState !== 1) {
+      statusLine.textContent = 'Reconnecting... please try again in a moment.';
+      setTimeout(() => { statusLine.textContent = ''; }, 3000);
+      return;
+    }
+    addMsg(`[Deep Analysis] ${text}`, 'user');
+    const payload = { type: 'analyze', query: text };
+    if (pendingImage) { payload.image = pendingImage.base64; payload.mime_type = pendingImage.mime_type; }
+    ws.send(JSON.stringify(payload));
+    textInput.value = '';
+    pendingImage = null;
+    preview.style.display = 'none';
+    attachBtn.classList.remove('has-image');
+    analyzeBtn.classList.add('processing');
+    analyzeResults.style.display = 'none';
+    // Reset bars
+    ['jp','us','fr','de'].forEach(m => {
+      document.getElementById(`fill-${m}`).style.width = '0%';
+      document.getElementById(`score-${m}`).textContent = '—';
+    });
+    setProcessingMarkets(['jp','us','fr','de']);
+    statusLine.textContent = '⬡ Dispatching agents to all four markets simultaneously...';
+    setTimeout(() => { if (statusLine.textContent.startsWith('⬡')) statusLine.textContent = ''; }, 30000);
+  };
+
+  // ── Microphone ────────────────────────────────────────
+  micBtn.onclick = async () => {
+    if (recording) {
+      recording = false;
+      micBtn.classList.remove('active');
+      if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+      return;
+    }
+    try {
+      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: { sampleRate: 16000, channelCount: 1 } });
+      if (!audioCtx) audioCtx = new AudioContext({ sampleRate: 16000 });
+      const source = audioCtx.createMediaStreamSource(mediaStream);
+      const processor = audioCtx.createScriptProcessor(4096, 1, 1);
+      processor.onaudioprocess = (e) => {
+        if (!recording || ws?.readyState !== 1) return;
+        const f32 = e.inputBuffer.getChannelData(0);
+        let rms = 0;
+        for (let i = 0; i < f32.length; i++) rms += f32[i] * f32[i];
+        rms = Math.sqrt(rms / f32.length);
+        if (rms < 0.01) return;
+        if (isPlaying) stopPlayback();
+        const i16 = new Int16Array(f32.length);
+        for (let i = 0; i < f32.length; i++) i16[i] = Math.max(-32768, Math.min(32767, f32[i] * 32768));
+        ws.send(i16.buffer);
+      };
+      source.connect(processor);
+      processor.connect(audioCtx.destination);
+      recording = true;
+      micBtn.classList.add('active');
+    } catch (err) {
+      addMsg('Microphone access denied', 'system');
+    }
+  };
+
+  // ── Init ──────────────────────────────────────────────
+  connect();
+</script>
 </body>
 </html>
