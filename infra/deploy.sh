@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_ID="${GCP_PROJECT_ID:?GCP_PROJECT_ID を設定してください}"
+PROJECT_ID="avex-corp-elearning"
 REGION="us-central1"
 SERVICE_NAME="cultural-risk-intelligence"
 IMAGE="gcr.io/${PROJECT_ID}/${SERVICE_NAME}"
+SA="cultural-risk-sa@${PROJECT_ID}.iam.gserviceaccount.com"
 
 echo "==> Building container image..."
 gcloud builds submit --tag "${IMAGE}" .
@@ -15,7 +16,8 @@ gcloud run deploy "${SERVICE_NAME}" \
   --region "${REGION}" \
   --platform managed \
   --allow-unauthenticated \
-  --set-env-vars "GOOGLE_API_KEY=${GOOGLE_API_KEY:?GOOGLE_API_KEY を設定してください}" \
+  --service-account "${SA}" \
+  --set-env-vars "GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_CLOUD_LOCATION=global,GOOGLE_CLOUD_LIVE_LOCATION=us-central1" \
   --memory 512Mi \
   --cpu 1 \
   --min-instances 0 \

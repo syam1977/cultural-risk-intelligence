@@ -213,10 +213,18 @@
       const text = input.value.trim();
       if (!text || ws.readyState !== 1) return;
       addMsg(`[Deep Analysis] ${text}`, "user");
-      ws.send(JSON.stringify({ type: "analyze", query: text }));
+      const payload = { type: "analyze", query: text };
+      if (pendingImage) {
+        payload.image = pendingImage.base64;
+        payload.mime_type = pendingImage.mime_type;
+      }
+      ws.send(JSON.stringify(payload));
       input.value = "";
+      pendingImage = null;
+      preview.style.display = "none";
+      attachBtn.classList.remove("has-image");
       status.textContent = "Analyzing all markets in parallel...";
-      setTimeout(() => { status.textContent = ""; }, 10000);
+      setTimeout(() => { status.textContent = ""; }, 15000);
     };
 
     input.addEventListener("keydown", (e) => {

@@ -12,7 +12,7 @@ from agents.orchestrator import Orchestrator
 
 router = APIRouter()
 
-LIVE_MODEL = "gemini-live-2.5-flash-preview-native-audio-09-2025"
+LIVE_MODEL = "gemini-live-2.5-flash-native-audio"
 
 LIVE_CONFIG = types.LiveConnectConfig(
     response_modalities=["AUDIO"],
@@ -85,9 +85,11 @@ async def live_session(ws: WebSocket):
                     payload = json.loads(msg["text"])
 
                     if payload.get("type") == "analyze":
-                        # 詳細分析: Orchestrator 経由で全市場並列分析
                         query = payload["query"]
-                        result = await _orchestrator.analyze(query)
+                        image_bytes = None
+                        if payload.get("image"):
+                            image_bytes = base64.b64decode(payload["image"])
+                        result = await _orchestrator.analyze(query, image_bytes)
                         await ws.send_json({"type": "analysis", "data": result})
                     else:
                         # テキスト（+画像）メッセージを Live セッションに送信

@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from google import genai
+from google.genai.types import HttpOptions
 
 from app.live_session import router as live_router, init_clients
 
@@ -23,6 +24,7 @@ async def startup():
         vertexai=True,
         project=project,
         location=os.environ.get("GOOGLE_CLOUD_LIVE_LOCATION", "us-central1"),
+        http_options=HttpOptions(api_version="v1beta1"),
     )
     analysis_client = genai.Client(
         vertexai=True,

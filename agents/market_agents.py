@@ -40,8 +40,13 @@ class MarketAgentRunner:
 
         if image_bytes is not None:
             contents = [
-                genai.types.Part.from_text(query),
-                genai.types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
+                genai.types.Part(text=query),
+                genai.types.Part(
+                    inline_data=genai.types.Blob(
+                        data=image_bytes,
+                        mime_type="image/jpeg",
+                    )
+                ),
             ]
         else:
             contents = query
