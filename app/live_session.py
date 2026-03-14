@@ -95,14 +95,45 @@ async def live_session(ws: WebSocket):
                         image_bytes = None
                         if payload.get("image"):
                             image_bytes = base64.b64decode(payload["image"])
+
+                        # Step1: アナウンスをawaitで送信（create_taskではなく）
+                        start_msg = (
+                            "Starting deep analysis across all four markets — "
+                            "Japan, US/UK, France, and Germany. "
+                            "This will take about 20 seconds."
+                        )
+                        await ws.send_json({"type": "text", "data": f"[Deep Analysis] {start_msg}"})
+                        await session.send_client_content(
+                            turns=[types.Content(role="user", parts=[types.Part(text=start_msg)])],
+                            turn_complete=True,
+                        )
+
+                        # Step2: Orchestrator実行
                         try:
-                            result = await _orchestrator.analyze(query, image_bytes)
-                            await ws.send_json({"type": "analysis", "data": result})
+                            result = await asyncio.wait_for(
+                                _orchestrator.analyze(query, image_bytes),
+                                timeout=60.0
+                            )
+                        except asyncio.TimeoutError:
+                            await ws.send_json({"type": "analysis", "data": "Analysis timed out."})
+                            continue
                         except Exception as e:
-                            await ws.send_json({
-                                "type": "analysis",
-                                "data": f"Analysis failed: {str(e)}"
-                            })
+                            await ws.send_json({"type": "analysis", "data": f"Analysis failed: {str(e)}"})
+                            continue
+
+                        # Step3: スコア表示
+                        await ws.send_json({"type": "analysis", "data": result})
+
+                        # Step4: サマリー音声
+                        summary_prompt = (
+                            f"The deep analysis is complete. Here are the results:\n\n{result[:800]}\n\n"
+                            "Please summarize the key cultural risks across the four markets "
+                            "in a concise, conversational way — as if briefing the creative team in the room."
+                        )
+                        await session.send_client_content(
+                            turns=[types.Content(role="user", parts=[types.Part(text=summary_prompt)])],
+                            turn_complete=True,
+                        )
                     else:
                         # テキスト（+画像）メッセージを Live セッションに送信
                         user_message = payload.get("data", "")
