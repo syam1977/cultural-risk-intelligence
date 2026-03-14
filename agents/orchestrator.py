@@ -6,7 +6,7 @@ from google import genai
 
 from agents.market_agents import MarketAgentRunner, MARKETS
 
-SYNTHESIS_MODEL = "gemini-2.5-flash"
+SYNTHESIS_MODEL = "gemini-3.1-flash-lite-preview"
 
 # MARKETS の日本語ラベル → フロントエンドが期待するコードへのマッピング
 _LABEL_TO_CODE = {
