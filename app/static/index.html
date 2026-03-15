@@ -1126,9 +1126,6 @@
     lastQuery = text;
     ws.send(JSON.stringify(payload));
     textInput.value = '';
-    pendingImage = null;
-    preview.style.display = 'none';
-    attachBtn.classList.remove('has-image');
   };
 
   textInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendBtn.click(); });
@@ -1152,9 +1149,6 @@
     if (pendingImage) { payload.image = pendingImage.base64; payload.mime_type = pendingImage.mime_type; }
     ws.send(JSON.stringify(payload));
     textInput.value = '';
-    pendingImage = null;
-    preview.style.display = 'none';
-    attachBtn.classList.remove('has-image');
     analyzeBtn.classList.add('processing');
     analyzeResults.style.display = 'none';
     // Reset bars
