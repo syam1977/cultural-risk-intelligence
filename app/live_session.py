@@ -17,6 +17,7 @@ LIVE_MODEL = "gemini-live-2.5-flash-native-audio"
 LIVE_CONFIG = types.LiveConnectConfig(
     response_modalities=["AUDIO"],
     output_audio_transcription=types.AudioTranscriptionConfig(),
+    input_audio_transcription=types.AudioTranscriptionConfig(),
     system_instruction=types.Content(
         parts=[
             types.Part(
@@ -73,6 +74,9 @@ async def live_session(ws: WebSocket):
                             sc = response.server_content
                             if sc and sc.output_transcription and sc.output_transcription.text:
                                 await ws.send_json({"type": "text", "data": sc.output_transcription.text})
+                            # ユーザー音声入力トランスクリプション
+                            if sc and sc.input_transcription and sc.input_transcription.text:
+                                await ws.send_json({"type": "user_transcript", "data": sc.input_transcription.text})
                     except Exception:
                         break
 

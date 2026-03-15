@@ -1118,16 +1118,42 @@
       agentFlushTimer = setTimeout(flushAgentBuffer, 1500);
     }
 
+    // ── Voice trigger for Deep Analyze ──────────────────
+    const voiceTriggerPatterns = [
+      /analyze all markets/i,
+      /run the full analysis/i,
+      /deep analyze/i,
+      /all four markets simultaneously/i,
+    ];
+    let deepAnalyzeRunning = false;
+
+    function checkVoiceTrigger(transcript) {
+      if (deepAnalyzeRunning) return;
+      if (!voiceTriggerPatterns.some(re => re.test(transcript))) return;
+      if (ws?.readyState !== 1) return;
+      const query = textInput.value.trim() || lastQuery;
+      if (!query && !pendingImage) return;
+
+      statusLine.textContent = 'Voice trigger detected — starting deep analysis...';
+      deepAnalyzeRunning = true;
+      analyzeBtn.click();
+    }
+
     ws.onmessage = (e) => {
       if (typeof e.data === 'string') {
         const msg = JSON.parse(e.data);
         if (msg.type === 'text') {
           appendAgentText(msg.data);
+        } else if (msg.type === 'user_transcript') {
+          addMsg(msg.data, 'user');
+          lastQuery = msg.data;
+          checkVoiceTrigger(msg.data);
         } else if (msg.type === 'analysis') {
           // flush any pending agent text first
           flushAgentBuffer();
           addMsg(msg.data, 'analysis');
           analyzeBtn.classList.remove('processing');
+          deepAnalyzeRunning = false;
           statusLine.textContent = '';
           const scores = parseScores(msg.data);
           showAnalyzeResults(scores);
