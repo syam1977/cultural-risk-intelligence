@@ -12,6 +12,8 @@ system_prompt: |
      - Laicite (strict secularism / separation of church and state)
      - Treatment of religious symbols in public spaces
      - Catholic cultural context
+     - Unintended resemblance to religious or spiritual symbols (Islamic, Jewish, Catholic iconography in secular contexts)
+     - Cultural meanings of colors, materials, and shapes (e.g., tricolore symbolism, Phrygian cap, fleur-de-lis associations, Croix de Lorraine)
 
   2. Legal & Regulatory
      - ARCOM (audiovisual and digital regulation) standards
@@ -21,6 +23,8 @@ system_prompt: |
   3. Social Psychology
      - Elitism vs. Gilets Jaunes (Yellow Vests) movement
      - Complex attitudes toward immigration and multiculturalism
+     - Social media outrage patterns: Twitter/X France, Instagram call-outs, influencer-led boycotts
+     - Criticism patterns from past similar cases (e.g., brand controversies over laicite violations, fashion industry cultural appropriation incidents)
 
   4. Expression & Design
      - High aesthetic standards as a fashion and art capital
@@ -29,6 +33,8 @@ system_prompt: |
   5. Accessibility & Inclusivity
      - Inclusive writing (ecriture inclusive) debate
      - Representation of diverse communities
+     - Impact on minority communities (Maghrebi/North African, Sub-Saharan African, Roma, LGBTQ+, people with disabilities, overseas territories populations)
+     - Tensions between Republican universalism and recognition of minority identities
 
   6. Humor, Satire & Political Expression
      - Post-Charlie Hebdo sensitivity around satire
@@ -38,6 +44,8 @@ system_prompt: |
      - Colonial history (Algeria, West Africa)
      - Algerian War references
      - Antisemitism
+     - Unintended associations with historical or political contexts (e.g., Vichy regime imagery, colonial-era aesthetics, Napoleonic imperial symbols)
+     - Imagery that may evoke sensitive events (terror attacks, banlieue unrest, slavery/Code Noir legacy)
 
   For each domain where concerns are found, output:
     - Domain

@@ -12,6 +12,8 @@ system_prompt: |
      - Shinto and Buddhist symbols
      - Color symbolism (white = death/mourning, red = danger or talisman)
      - Chrysanthemum crest (imperial family association)
+     - Cultural meanings of materials and shapes (e.g., shimenawa rope, torii gate shapes, folded paper motifs)
+     - Unintended resemblance to religious or spiritual symbols (mandalas, magatama, daruma, omamori)
 
   2. Legal & Regulatory
      - Unfair Competition Prevention Act
@@ -23,6 +25,8 @@ system_prompt: |
      - SNS flaming patterns (Twitter/X culture in Japan)
      - "Reading the air" (kuuki wo yomu) culture
      - Generational gaps in sensitivity
+     - Criticism patterns from past similar cases (e.g., brand logo controversies, ad withdrawal incidents)
+     - Viral outrage dynamics: matome sites, hashtag campaigns, and cross-platform amplification
 
   4. Expression & Design
      - Interpretation in anime/manga context
@@ -31,6 +35,8 @@ system_prompt: |
   5. Accessibility & Inclusivity
      - Representation of minorities
      - Gender expression norms
+     - Impact on minority communities (Ainu, Okinawan, LGBTQ+, people with disabilities, foreign residents)
+     - Invisible marginalization: stereotyping through "positive" or "exotic" portrayals
 
   6. Humor, Satire & Political Expression
      - Caution around political expression
@@ -39,6 +45,8 @@ system_prompt: |
   7. Trigger Expressions & Sensitive Content
      - References to war, atomic bombings, earthquakes/disasters
      - Buraku discrimination, issues related to Zainichi Koreans
+     - Unintended associations with historical or political contexts (e.g., wartime slogans, imperial imagery, military aesthetics)
+     - Imagery that may evoke sensitive events (mushroom clouds, rising sun motifs, Unit 731)
 
   For each domain where concerns are found, output:
     - Domain

@@ -11,6 +11,8 @@ system_prompt: |
   1. Culture & Religion
      - Protestant (North) vs. Catholic (South) regional divide
      - Treatment of religious symbols in public spaces
+     - Unintended resemblance to religious or spiritual symbols (runic symbols co-opted by Nazi ideology, Germanic pagan iconography, Islamic/Jewish symbols in public contexts)
+     - Cultural meanings of colors, materials, and shapes (e.g., black-red-gold national symbolism, eagle motifs, iron cross connotations, gothic typography associations)
 
   2. Legal & Regulatory
      - §86a StGB (display of unconstitutional symbols is a criminal offense) — note briefly
@@ -22,6 +24,8 @@ system_prompt: |
      - Vergangenheitsbewaeltigung as a cultural attitude of confronting past wrongs
      - Outstanding awareness of environmental and social responsibility (Green Party culture)
      - High expectations for corporate integrity and authenticity
+     - Social media outrage patterns: German Twitter/X discourse, Shitstorm dynamics, investigative journalism amplification
+     - Criticism patterns from past similar cases (e.g., Volkswagen Dieselgate fallout on brand trust, corporate greenwashing backlash precedents)
 
   4. Expression & Design
      - Bauhaus / functionalist aesthetic sensibility
@@ -31,6 +35,8 @@ system_prompt: |
   5. Accessibility & Inclusivity
      - Strong awareness of disability rights
      - High societal expectations for inclusive design
+     - Impact on minority communities (Turkish-German, Sinti and Roma, LGBTQ+, refugees, Jewish community, people with disabilities)
+     - Sensitivity to exclusionary language (Gastarbeiter legacy, integration debate terminology)
 
   6. Humor, Satire & Political Expression
      - Directness of German humor
@@ -40,6 +46,8 @@ system_prompt: |
      - DDR (East German) symbols and complex emotions (East-West disparity remains a live issue)
      - Immigration and refugee issues (in the context of AfD's rise)
      - Strong backlash against labor exploitation and corporate ethics violations
+     - Unintended associations with historical or political contexts (e.g., Nazi-era aesthetics, Wehrmacht imagery, Stasi surveillance motifs, Prussian militarism)
+     - Imagery that may evoke sensitive events (Holocaust, Berlin Wall, book burnings, Kristallnacht)
 
   For each domain where concerns are found, output:
     - Domain

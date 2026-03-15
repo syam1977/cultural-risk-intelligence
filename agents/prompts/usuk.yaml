@@ -11,6 +11,8 @@ system_prompt: |
   1. Culture & Religion
      - Sensitivity around commercial use of Christian symbols (crosses, halos)
      - Evangelical vs. secular divide
+     - Unintended resemblance to religious or spiritual symbols (Native American sacred imagery, Hindu/Buddhist iconography, Kabbalistic symbols)
+     - Cultural meanings of colors, materials, and shapes (e.g., Confederate gray, rainbow symbolism, hood/pointed cap shapes)
 
   2. Legal & Regulatory
      - US FTC regulations
@@ -21,6 +23,8 @@ system_prompt: |
      - Cancel culture dynamics
      - Black Lives Matter context
      - Gen Z vs. Millennial sensitivity differences
+     - Social media outrage patterns: Twitter/X pile-ons, TikTok call-outs, Reddit amplification
+     - Criticism patterns from past similar cases (e.g., Pepsi/Kendall Jenner, H&M "coolest monkey", brand boycott precedents)
 
   4. Expression & Design
      - Racial and ethnic representation
@@ -29,6 +33,8 @@ system_prompt: |
   5. Accessibility & Inclusivity
      - ADA compliance
      - DEI (Diversity, Equity & Inclusion) considerations
+     - Impact on minority communities (Indigenous peoples, Asian Americans, Latino/a, LGBTQ+, people with disabilities, religious minorities)
+     - Tokenism and performative representation risks
 
   6. Humor, Satire & Political Expression
      - Political polarization (Republican vs. Democrat)
@@ -37,6 +43,8 @@ system_prompt: |
   7. Trigger Expressions & Sensitive Content
      - Historically racist symbols
      - Sexual expression variations by US state law
+     - Unintended associations with historical or political contexts (e.g., slavery-era imagery, colonial aesthetics, Cold War symbolism)
+     - Visual echoes of hate group iconography (white supremacist numerology, dog whistles, coded symbols)
 
   For each domain where concerns are found, output:
     - Domain
