@@ -87,57 +87,7 @@
       text-transform: uppercase;
     }
 
-    /* market chips */
-    .market-row {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .chip {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.28rem 0.7rem;
-      background: var(--s2);
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      color: #9898b8;
-      transition: all 0.25s ease;
-      user-select: none;
-    }
-    .chip .led {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--text-dim);
-      transition: all 0.25s ease;
-      flex-shrink: 0;
-    }
-
-    .chip.active-jp { color: var(--jp); border-color: var(--jp); background: rgba(248,113,113,0.07); }
-    .chip.active-jp .led { background: var(--jp); box-shadow: 0 0 7px var(--jp); }
-    .chip.active-us { color: var(--us); border-color: var(--us); background: rgba(56,189,248,0.07); }
-    .chip.active-us .led { background: var(--us); box-shadow: 0 0 7px var(--us); }
-    .chip.active-fr { color: var(--fr); border-color: var(--fr); background: rgba(167,139,250,0.07); }
-    .chip.active-fr .led { background: var(--fr); box-shadow: 0 0 7px var(--fr); }
-    .chip.active-de { color: var(--de); border-color: var(--de); background: rgba(251,191,36,0.07); }
-    .chip.active-de .led { background: var(--de); box-shadow: 0 0 7px var(--de); }
-
-    .chip.pulsing { animation: chipBlink 0.7s ease-in-out infinite alternate; }
-    @keyframes chipBlink { from { opacity:0.45; } to { opacity:1; } }
-
-    .chip.deep-active-jp { color: var(--jp); border-color: var(--jp); background: rgba(248,113,113,0.1); }
-    .chip.deep-active-jp .led { background: var(--jp); box-shadow: 0 0 7px var(--jp); }
-    .chip.deep-active-us { color: var(--us); border-color: var(--us); background: rgba(56,189,248,0.1); }
-    .chip.deep-active-us .led { background: var(--us); box-shadow: 0 0 7px var(--us); }
-    .chip.deep-active-fr { color: var(--fr); border-color: var(--fr); background: rgba(167,139,250,0.1); }
-    .chip.deep-active-fr .led { background: var(--fr); box-shadow: 0 0 7px var(--fr); }
-    .chip.deep-active-de { color: var(--de); border-color: var(--de); background: rgba(251,191,36,0.1); }
-    .chip.deep-active-de .led { background: var(--de); box-shadow: 0 0 7px var(--de); }
+    /* (market chips removed) */
 
     /* connection status */
     .conn {
@@ -554,12 +504,6 @@
     <span class="logo-sub">Powered by Gemini Live API</span>
   </div>
 
-  <div class="market-row">
-    <div class="chip" id="chip-jp"><span class="led"></span>JP</div>
-    <div class="chip" id="chip-us"><span class="led"></span>US</div>
-    <div class="chip" id="chip-fr"><span class="led"></span>FR</div>
-    <div class="chip" id="chip-de"><span class="led"></span>DE</div>
-  </div>
 
   <div class="conn">
     <div class="conn-dot" id="connDot"></div>
@@ -876,7 +820,6 @@
   const analyzeResults = document.getElementById('analyzeResults');
 
   // market UI elements
-  const chips = { jp:'chip-jp', us:'chip-us', fr:'chip-fr', de:'chip-de' };
   const pins  = { jp:'pin-jp',  us:'pin-us',  fr:'pin-fr',  de:'pin-de'  };
 
   // ── State ─────────────────────────────────────────────
@@ -884,6 +827,7 @@
   let recording = false;
   let pendingImage = null;
   let activeMarket = null;
+  let deepAnalyzeComplete = false;
 
   // ── Image attachment ──────────────────────────────────
   attachBtn.onclick = () => fileInput.click();
@@ -909,20 +853,17 @@
 
   // ── Market indicator helpers ──────────────────────────
   function clearAllMarkers() {
-    Object.keys(chips).forEach(m => {
-      const c = document.getElementById(chips[m]);
-      c.className = 'chip';
+    Object.keys(pins).forEach(m => {
       const p = document.getElementById(pins[m]);
-      p.classList.remove('active','processing');
+      if (p) p.classList.remove('active', 'processing', 'risk-low', 'risk-med', 'risk-high', 'risk-crit');
     });
   }
 
   function setActiveMarket(market) {
+    if (deepAnalyzeComplete) return;
     clearAllMarkers();
     if (!market) return;
     activeMarket = market;
-    const c = document.getElementById(chips[market]);
-    if (c) c.className = `chip active-${market}`;
     const p = document.getElementById(pins[market]);
     if (p) p.classList.add('active');
   }
@@ -930,8 +871,6 @@
   function setProcessingMarkets(markets) {
     clearAllMarkers();
     markets.forEach(m => {
-      const c = document.getElementById(chips[m]);
-      if (c) { c.className = `chip deep-active-${m} pulsing`; }
       const p = document.getElementById(pins[m]);
       if (p) p.classList.add('processing');
     });
@@ -998,6 +937,7 @@
   }
 
   function showAnalyzeResults(scores) {
+    deepAnalyzeComplete = true;
     analyzeResults.style.display = 'flex';
     ['jp','us','fr','de'].forEach(m => {
       const s = scores[m] || 50;
@@ -1013,13 +953,6 @@
         if (pin) {
           pin.classList.remove('processing', 'active', 'risk-low', 'risk-med', 'risk-high', 'risk-crit');
           pin.classList.add(scoreToRiskClass(s));
-        }
-        // update chip color
-        const c = document.getElementById(chips[m]);
-        if (c) {
-          c.className = `chip deep-active-${m}`;
-          c.querySelector('.led').style.background = color;
-          c.querySelector('.led').style.boxShadow = `0 0 7px ${color}`;
         }
       }, (['jp','us','fr','de'].indexOf(m) * 180));
     });
@@ -1145,6 +1078,7 @@
         if (msg.type === 'text') {
           appendAgentText(msg.data);
         } else if (msg.type === 'user_transcript') {
+          deepAnalyzeComplete = false;
           addMsg(msg.data, 'user');
           lastQuery = msg.data;
           if (isDeepAnalyzeTrigger(msg.data)) triggerDeepAnalyze('Voice');
@@ -1185,6 +1119,7 @@
       return;
     }
 
+    deepAnalyzeComplete = false;
     addMsg(text || '(image)', 'user');
     const payload = { type: 'message', data: text };
     if (pendingImage) { payload.image = pendingImage.base64; payload.mime_type = pendingImage.mime_type; }
@@ -1260,6 +1195,7 @@
       source.connect(processor);
       processor.connect(audioCtx.destination);
       recording = true;
+      deepAnalyzeComplete = false;
       micBtn.classList.add('active');
     } catch (err) {
       addMsg('Microphone access denied', 'system');
