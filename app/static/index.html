@@ -1011,8 +1011,8 @@
         score.textContent = s;
         score.style.color = color;
         if (pin) {
-          pin.classList.remove('processing');
-          pin.className = `mpin ${scoreToRiskClass(s)}`;
+          pin.classList.remove('processing', 'active', 'risk-low', 'risk-med', 'risk-high', 'risk-crit');
+          pin.classList.add(scoreToRiskClass(s));
         }
         // update chip color
         const c = document.getElementById(chips[m]);
