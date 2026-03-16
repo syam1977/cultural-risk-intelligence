@@ -121,8 +121,6 @@ Market agents are **prompt-driven and modular** — adding a new market requires
 
 Try it live: https://cultural-risk-intelligence-121466101834.us-central1.run.app
 
-Try it live: https://cultural-risk-intelligence-121466101834.us-central1.run.app
-
 **Suggested prompts:**
 - *"This is a costume concept with a golden halo and white robes — what's your read for the US market?"*
 - *"What about Japan? How does the interpretation change?"*
