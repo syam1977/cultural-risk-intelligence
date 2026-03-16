@@ -115,7 +115,11 @@ Market agents are **prompt-driven and modular** — adding a new market requires
 
 ## Demo
 
-![App Screenshot](docs/screenshots/app-demo.png)
+[![Demo Video](docs/screenshots/app-demo.png)](https://youtu.be/SNurbpccRU0)
+
+▶️ **[Watch Demo Video](https://youtu.be/SNurbpccRU0)**
+
+Try it live: https://cultural-risk-intelligence-121466101834.us-central1.run.app
 
 Try it live: https://cultural-risk-intelligence-121466101834.us-central1.run.app
 
