@@ -1,0 +1,88 @@
+<svg width="100%" viewBox="0 0 680 530" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<rect width="680" height="530" fill="#ffffff"/>
+
+<!-- Browser -->
+<rect x="240" y="20" width="200" height="44" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text font-family="sans-serif" font-size="14" font-weight="500" fill="#2C2C2A" x="340" y="42" text-anchor="middle" dominant-baseline="central">Browser</text>
+
+<!-- Arrow: Browser → FastAPI -->
+<line x1="340" y1="64" x2="340" y2="138" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+<text font-family="sans-serif" font-size="12" fill="#5F5E5A" x="350" y="100" dominant-baseline="central">WebSocket</text>
+
+<!-- Cloud Run dashed container -->
+<rect x="20" y="112" width="640" height="398" rx="14" fill="none" stroke="#888780" stroke-width="0.5" stroke-dasharray="5 3"/>
+<text font-family="sans-serif" font-size="12" fill="#5F5E5A" x="644" y="131" text-anchor="end">Cloud Run · us-central1</text>
+
+<!-- FastAPI -->
+<rect x="200" y="138" width="280" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text font-family="sans-serif" font-size="14" font-weight="500" fill="#04342C" x="340" y="158" text-anchor="middle" dominant-baseline="central">FastAPI</text>
+<text font-family="sans-serif" font-size="12" fill="#0F6E56" x="340" y="176" text-anchor="middle" dominant-baseline="central">WebSocket relay · audio bridge</text>
+
+<!-- FastAPI → Gemini Live -->
+<path d="M200,163 L130,163 L130,248" fill="none" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+<!-- Gemini Live → FastAPI return -->
+<path d="M120,248 L120,147 L200,147" fill="none" stroke="#888780" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#arrow)"/>
+
+<!-- FastAPI → Orchestrator -->
+<path d="M480,163 L497,163 L497,248" fill="none" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+<text font-family="sans-serif" font-size="12" fill="#5F5E5A" x="506" y="206" dominant-baseline="central">Deep Analyze</text>
+
+<!-- Gemini Live API -->
+<rect x="25" y="248" width="210" height="56" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text font-family="sans-serif" font-size="14" font-weight="500" fill="#26215C" x="130" y="268" text-anchor="middle" dominant-baseline="central">Gemini Live API</text>
+<text font-family="sans-serif" font-size="12" fill="#534AB7" x="130" y="286" text-anchor="middle" dominant-baseline="central">gemini-live-2.5-flash · us-central1</text>
+
+<!-- Orchestrator -->
+<rect x="375" y="248" width="244" height="56" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text font-family="sans-serif" font-size="14" font-weight="500" fill="#042C53" x="497" y="268" text-anchor="middle" dominant-baseline="central">Orchestrator</text>
+<text font-family="sans-serif" font-size="12" fill="#185FA5" x="497" y="286" text-anchor="middle" dominant-baseline="central">4 markets · parallel</text>
+
+<!-- Trunk down -->
+<line x1="497" y1="304" x2="497" y2="344" stroke="#888780" stroke-width="1"/>
+<!-- Horizontal bar -->
+<line x1="389" y1="344" x2="605" y2="344" stroke="#888780" stroke-width="1"/>
+<!-- Drops to agents -->
+<line x1="389" y1="344" x2="389" y2="354" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="461" y1="344" x2="461" y2="354" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="533" y1="344" x2="533" y2="354" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="605" y1="344" x2="605" y2="354" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+
+<!-- JP -->
+<rect x="363" y="354" width="52" height="36" rx="6" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text font-family="sans-serif" font-size="14" font-weight="500" fill="#042C53" x="389" y="372" text-anchor="middle" dominant-baseline="central">JP</text>
+
+<!-- US/UK -->
+<rect x="435" y="354" width="52" height="36" rx="6" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text font-family="sans-serif" font-size="14" font-weight="500" fill="#042C53" x="461" y="372" text-anchor="middle" dominant-baseline="central">US/UK</text>
+
+<!-- FR -->
+<rect x="507" y="354" width="52" height="36" rx="6" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text font-family="sans-serif" font-size="14" font-weight="500" fill="#042C53" x="533" y="372" text-anchor="middle" dominant-baseline="central">FR</text>
+
+<!-- DE -->
+<rect x="579" y="354" width="52" height="36" rx="6" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text font-family="sans-serif" font-size="14" font-weight="500" fill="#042C53" x="605" y="372" text-anchor="middle" dominant-baseline="central">DE</text>
+
+<!-- Agent model label -->
+<text font-family="sans-serif" font-size="12" fill="#888780" x="497" y="410" text-anchor="middle">gemini-3.1-flash-lite-preview · global</text>
+
+<!-- Collect agents → synthesis -->
+<line x1="389" y1="390" x2="389" y2="428" stroke="#888780" stroke-width="1"/>
+<line x1="461" y1="390" x2="461" y2="428" stroke="#888780" stroke-width="1"/>
+<line x1="533" y1="390" x2="533" y2="428" stroke="#888780" stroke-width="1"/>
+<line x1="605" y1="390" x2="605" y2="428" stroke="#888780" stroke-width="1"/>
+<line x1="389" y1="428" x2="605" y2="428" stroke="#888780" stroke-width="1"/>
+<line x1="497" y1="428" x2="497" y2="450" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+
+<!-- Synthesis -->
+<rect x="375" y="450" width="244" height="44" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text font-family="sans-serif" font-size="14" font-weight="500" fill="#26215C" x="497" y="466" text-anchor="middle" dominant-baseline="central">Synthesis</text>
+<text font-family="sans-serif" font-size="12" fill="#534AB7" x="497" y="484" text-anchor="middle" dominant-baseline="central">gemini-3.1-flash-lite-preview · global</text>
+
+</svg>

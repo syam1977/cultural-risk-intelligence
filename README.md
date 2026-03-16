@@ -1,237 +1,249 @@
 # Cultural Risk Intelligence
 
-> **Gemini Live Agent Challenge (DevPost) 2026**
-> Built in 6 days · Deployed on Cloud Run · Powered by Gemini Live API
+**Real-time voice-based cultural risk analysis for global creative teams.**
+
+Built for the [Gemini Live Agent Challenge](https://geminiliveagentchallenge.devpost.com) · Powered by Gemini Live API · Deployed on Cloud Run
+
+🌐 **Live Demo**: https://cultural-risk-intelligence-121466101834.us-central1.run.app
 
 ---
 
-## Why This Exists / なぜ作ったのか
+## What It Does
 
-Existing content moderation tools (Azure Content Safety, Google Safe Browsing, etc.)
-are designed to filter harmful content — they answer "is this safe?"
+Cultural Risk Intelligence is a real-time voice agent that helps A&R teams evaluate visual content — costumes, symbols, design elements — across four global markets simultaneously.
 
-Cultural Risk Intelligence asks a different question:
-**"Does this travel?"**
+Share an image, speak naturally, and get instant cultural risk analysis from four market personas: **Japan, US/UK, France, and Germany**. The advisor is always in the room, always listening, and can be interrupted mid-sentence — just like a real conversation.
 
-A costume that passes every content filter can still trigger backlash in a specific market
-due to religious symbolism, historical associations, or social taboos.
-The gap between "not harmful" and "culturally resonant" is where creative decisions are made —
-and where this tool lives.
+```
+"This is the costume concept — what's your read?"
+→ Gemini responds with US market analysis (voice)
 
----
+"Wait — is that just the US? What about every market?"
+→ Gemini pivots immediately (barge-in / interruption handling)
 
-既存のコンテンツモデレーションツール（Azure Content Safety、Google Safe Browsingなど）は
-「有害なコンテンツを除去する」ために設計されています。つまり、答えるのは「これは安全か？」という問いです。
+"Can you analyze all markets at once?"
+→ Voice trigger launches parallel Deep Analysis across all 4 markets
+```
 
-Cultural Risk Intelligence が問うのは、別の問いです：
-**「これは、世界に通用するか？」**
+While the demo focuses on a costume concept, the agent works with any visual creative — album artwork, stage design, promotional imagery, music videos, brand assets. If it can be seen, it can be evaluated.
 
-あらゆるコンテンツフィルターを通過したコスチュームでも、
-宗教的シンボル・歴史的文脈・社会的タブーによって、特定の市場で炎上することがあります。
-「有害でない」と「文化的に響く」の間にあるギャップ——
-クリエイティブの意思決定が行われるのはまさにそこであり、
-このツールが存在するのもそこです。
-
-### How It Differs / 既存ツールとの違い
-
-|  | Content Moderation Tools | Cultural Risk Intelligence |
-|---|---|---|
-| **Question** | "Is this harmful?" | "Does this travel?" |
-| **Interaction** | Submit → Wait → Read report | Live voice conversation |
-| **Interruption** | N/A | Speak mid-response to redirect instantly |
-| **Market awareness** | Global single policy | JP / US / FR / DE — distinct cultural lenses |
-| **Image analysis** | Policy violation detection | Cultural symbolism interpretation |
-| **Output** | Pass / Fail / Flag | Nuanced advisory conversation |
-| **Speed** | Batch / async | Real-time, sub-second |
-| **Extensibility** | Fixed ruleset | Add a market with one YAML file |
+デモではコスチュームを例として使用しているが、このエージェントはあらゆるビジュアルクリエイティブに対応する——アルバムアートワーク、ステージデザイン、プロモーション画像、ミュージックビデオ、ブランドアセット。見えるものであれば、評価できる。
 
 ---
 
-## Project Overview / プロジェクト概要
+## Why This Exists
 
-A real-time cultural risk analysis agent for A&R teams evaluating visual content across global markets.
-Through live voice conversation, it acts as an always-present cultural advisor — analyzing costumes, symbols, and design elements across Japan, US, France, and Germany simultaneously.
+Creative decisions in global music are made fast — and cultural missteps are discovered slow.
 
-A&Rチームがビジュアルコンテンツ（コスチューム・シンボル・デザイン）をグローバル市場向けに評価するためのリアルタイム文化リスク分析エージェント。
-音声会話を通じて、日本・米国・フランス・ドイツ市場における文化的リスクを同時にリアルタイム分析します。
+The ideal scenario is simple: have a specialist in the room for every market. Someone who knows what a halo means in Japan, what "Stella Maris" triggers in France, what eagle motifs evoke in Germany. But that specialist doesn't exist in a single person. Assembling the right expertise for every market costs time and money that most creative teams don't have. And even when specialists are available, the knowledge stays siloed — dependent on whoever happens to be in the meeting.
 
-**Production URL / 本番URL:**
-`https://cultural-risk-intelligence-121466101834.us-central1.run.app`
+There's another problem: formality. Cultural risk review tends to happen at the end of the process, as an official checkpoint. By then, the creative is locked in. What's missing is the ability to ask *casually*, at the idea stage — "Does this feel right? What am I missing?" — and get a thoughtful answer without scheduling a meeting or filing a request.
 
----
+That's the gap this project fills. Not a report. Not a checklist. Not a formal review.
 
-## Key Features / 主な機能
-
-- **Real-time voice conversation** via Gemini Live API (native audio, interruptible)
-- **Live playback interruption** — speaking mid-response stops the advisor and redirects instantly
-- **Image attachment** — share a costume or visual for contextual analysis
-- **Deep Analyze** — dispatches 4 market agents in parallel, returns unified risk report with scores
-- **World map visualization** — market pins highlight as the conversation shifts focus
-- **Risk score dashboard** — per-market risk gauges (JP / US / FR / DE)
-- **Extensible market agents** — adding a new market requires only a new YAML prompt file
+**A conversation. Always available. Across all markets. Simultaneously.**
 
 ---
 
-- Gemini Live API によるリアルタイム音声会話（ネイティブオーディオ・割り込み対応）
-- 応答中に話しかけると即座に応答を停止して切り替え
-- 画像添付によるビジュアルコンテキスト分析
-- Deep Analyze：4市場エージェントを並列実行し統合レポートを生成
-- 世界地図ビジュアライゼーション：会話の焦点に合わせてマーケットピンが点灯
-- 市場別リスクスコアゲージ表示
-- YAMLプロンプト1ファイルで新市場を追加可能
+グローバル音楽における創作的意思決定は速く、文化的ミスの発見は遅い。
+
+理想はシンプルだ。すべての市場の専門家を会議室に揃えること。日本でハローが何を意味するか、フランスで「Stella Maris」が何を喚起するか、ドイツでワシのモチーフが何を連想させるかを知っている人物を。しかしそんな専門家は一人では存在しない。各市場に必要な専門知識を集めるには、ほとんどのクリエイティブチームが持っていない時間とコストがかかる。専門家がいたとしても、その知識は属人化する——たまたまその会議にいた人物に依存する形で。
+
+もう一つの問題がある：フォーマリティだ。文化的リスクのレビューはプロセスの終盤、正式なチェックポイントとして行われる傾向がある。その時点ではクリエイティブはすでに固まっている。欠けているのは、アイデア段階でカジュアルに問いかける能力だ——「これは大丈夫？何か見落としていない？」と、会議を設定したりリクエストを提出したりせずに、的確な答えをもらうこと。
+
+このプロジェクトが埋めるのはそのギャップだ。レポートではない。チェックリストでもない。正式な審査でもない。
+
+**会話だ。いつでも使える。全市場に対して。同時に。**
 
 ---
 
-## Tech Stack / 技術スタック
+## Architecture
+
+![Architecture Diagram](docs/architecture.svg)
 
 | Component | Technology |
-|-----------|------------|
-| Live Session (voice) | `gemini-live-2.5-flash-native-audio` (us-central1) |
-| Market Agents | `gemini-2.5-flash` (global) |
-| Synthesis | `gemini-2.5-flash` (global) |
-| Backend | Python, FastAPI, WebSocket, uvicorn (`--loop asyncio`) |
-| Frontend | Vanilla HTML/JS, Web Audio API (24kHz PCM) |
-| Deployment | Google Cloud Run (us-central1) |
-| Auth | Vertex AI + Service Account (`roles/aiplatform.user`) |
+|-----------|-----------|
+| Real-time voice | Gemini Live API (`gemini-live-2.5-flash-native-audio`) |
+| Market agents (×4) | `gemini-3.1-flash-lite-preview` · global |
+| Synthesis | `gemini-3.1-flash-lite-preview` · global |
+| Backend | FastAPI + WebSocket · Python |
+| Frontend | Vanilla JS · SVG world map |
+| Deployment | Google Cloud Run · us-central1 |
+| IaC | `infra/deploy.sh` |
 
 ---
 
-## Architecture / アーキテクチャ
+## Key Features
 
-```
-User Browser (Voice / Text / Image)
-        ↕ WebSocket
-FastAPI Server (Cloud Run / us-central1)
-        ↕
-Gemini Live API  ──────────────────────────────────
-gemini-live-2.5-flash-native-audio                 │
-        ↓ [Deep Analyze trigger]                   │
-Orchestrator (parallel)                            │
-  ├── JP Agent  → gemini-2.5-flash (global)        │
-  ├── US Agent  → gemini-2.5-flash (global)        │
-  ├── FR Agent  → gemini-2.5-flash (global)        │
-  └── DE Agent  → gemini-2.5-flash (global)        │
-        ↓ Synthesis                                │
-gemini-2.5-flash (global) ─────────────────────── │
-        ↓
-Unified Risk Report → WebSocket → Browser
-```
+- **🎙 Real-time voice conversation** — Speak naturally, get spoken responses
+- **✋ Barge-in / interruption handling** — Interrupt Gemini mid-sentence, just like a real advisor
+- **🖼 Image input** — Share a costume image and analyze it across markets
+- **🌍 4-market parallel analysis** — JP / US/UK / FR / DE run simultaneously via Orchestrator
+- **🔊 Voice trigger for Deep Analyze** — Say *"analyze all markets"* to launch parallel analysis hands-free
+- **📊 Risk score visualization** — Per-market risk gauges with color-coded severity
+- **🗺 Live world map** — Market pins light up as Gemini references each region
+- **🔁 Persistent image context** — Image stays attached throughout the session until explicitly removed
 
 ---
 
-## Market Coverage / 対象市場
+## 7-Domain Analysis Framework
 
-| Market | Rationale |
-|--------|-----------|
-| **JP** | Home market — cultural context baseline for Japanese artists |
-| **US** | Primary target — largest English-speaking market |
-| **FR** | Highest J-culture affinity in Europe (Paris Japan Expo) |
-| **DE** | Largest music market in continental Europe |
+Developed from years of experience in the global entertainment industry:
 
-> Market agents are prompt-driven and modular. Adding a new market requires only a new YAML file under `agents/prompts/`.
-> 市場エージェントはYAMLプロンプト駆動。`agents/prompts/` に新ファイルを追加するだけで拡張可能。
-
----
-
-## Setup / セットアップ
-
-### Prerequisites / 前提条件
-
-- Python 3.11+
-- Google Cloud project with Vertex AI enabled
-- `gcloud` CLI authenticated
-
-### Local Development / ローカル開発
-
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Check ADC and start server (recommended)
-./dev-start.sh
-
-# Or start directly
-./start.sh
-```
-
-> **Important:** Always use `./dev-start.sh` for local development.
-> It checks Application Default Credentials (ADC) before starting.
-> ローカル開発では必ず `./dev-start.sh` を使うこと。ADC の確認を自動実行します。
-
-Access: `http://localhost:8080`
-
-### Deploy to Cloud Run / Cloud Run へのデプロイ
-
-```bash
-# Run from Windows Command Prompt (not WSL — gcloud builds submit hangs in WSL)
-# WSLではなくWindowsコマンドプロンプトから実行すること
-
-cd \\wsl$\Ubuntu\home\<user>\cultural-risk-intelligence
-bash infra/deploy.sh
-```
+1. **Culture & Religion** — Symbols, iconography, sacred associations
+2. **Legal & Regulatory** — Local laws, IP, platform restrictions
+3. **Social Psychology** — Social media virality, cancel culture patterns
+4. **Expression & Design** — Color symbolism, visual grammar, material meaning
+5. **Accessibility & Inclusivity** — DEI representation, minority community impact
+6. **Humor & Satire** — Irony reception, cultural tone mismatch
+7. **Trigger Content** — Historical trauma, political iconography, past controversy patterns
 
 ---
 
-## Environment Variables / 環境変数
+## Market Personas
 
-Defined in `start.sh` (no `.env` file required):
+| Market | Prompt | Key Lens |
+|--------|--------|---------|
+| JP | `agents/prompts/jp.yaml` | SNS炎上, Shinto/Buddhist symbolism, White garment taboo |
+| US/UK | `agents/prompts/usuk.yaml` | Cancel culture, Cultural appropriation, DEI |
+| FR | `agents/prompts/fr.yaml` | Laïcité, Colonial history, Charlie Hebdo context |
+| DE | `agents/prompts/de.yaml` | §86a, Nazi iconography, Shitstorm culture, DSGVO |
 
-```bash
-GOOGLE_CLOUD_PROJECT=avex-corp-elearning
-GOOGLE_CLOUD_LOCATION=global           # Orchestrator / Market Agents
-GOOGLE_CLOUD_LIVE_LOCATION=us-central1 # Live API
-```
-
----
-
-## Key Technical Decisions / 主要な技術的決定
-
-| Decision | Detail |
-|----------|--------|
-| `--loop asyncio` | Required for uvicorn — uvloop conflicts with websockets library |
-| `api_version='v1beta1'` | Required for Live API — omitting causes WebSocket timeout |
-| Live API location | `us-central1` only — `global` is not supported |
-| `output_audio_transcription` | Enables text transcription of voice responses for UI market detection |
-| `Part(text=...)` | `Part.from_text()` is deprecated in current SDK |
+Market agents are **prompt-driven and modular** — adding a new market requires one YAML file.
 
 ---
 
-## Day-by-Day Progress / 開発進捗
+## Demo
 
-| Day | Summary | 概要 |
-|-----|---------|------|
-| 1 | Environment setup, verified all model connections (Live API, Market Agents, Synthesis) | 環境構築・全モデル接続確認 |
-| 2 | Voice response, image input, continuous multi-turn conversation, AudioContext 24kHz playback | 音声応答・画像入力・連続会話・音声再生 |
-| 3 | Microphone input, VAD (RMS-based), playback interruption on user speech | マイク入力・VAD・再生割り込み |
-| 4 | Deep Analyze E2E, image support in analyze, `Part` API fix | Deep Analyze E2E・画像対応・Part APIバグ修正 |
-| 5 | Cloud Run deployment, service account auth, Dockerfile fix | Cloud Runデプロイ・サービスアカウント認証 |
-| 6 | UI redesign (world map, market indicators, risk score panel), transcription support, analyze session fix | UI全面刷新・世界地図・市場インジケーター・スコアパネル |
+![App Screenshot](docs/screenshots/app-demo.png)
+
+Try it live: https://cultural-risk-intelligence-121466101834.us-central1.run.app
+
+**Suggested prompts:**
+- *"This is a costume concept with a golden halo and white robes — what's your read for the US market?"*
+- *"What about Japan? How does the interpretation change?"*
+- *"Can you analyze all markets at once?"*
 
 ---
 
-## Project Structure / プロジェクト構成
+## Project Structure
 
 ```
 cultural-risk-intelligence/
 ├── app/
-│   ├── main.py              # FastAPI entry point
-│   ├── live_session.py      # WebSocket / Gemini Live API relay
+│   ├── main.py               # FastAPI entry point
+│   ├── live_session.py       # WebSocket / Gemini Live API relay
 │   └── static/
-│       └── index.html       # Frontend (Vanilla JS)
+│       └── index.html        # Frontend (Vanilla JS + SVG map)
 ├── agents/
-│   ├── orchestrator.py      # Parallel analysis coordinator
-│   ├── market_agents.py     # Market agents (JP / US / FR / DE)
-│   └── prompts/             # Per-market YAML prompts
+│   ├── orchestrator.py       # Parallel analysis coordinator
+│   ├── market_agents.py      # Market agents (JP / US/UK / FR / DE)
+│   └── prompts/              # Per-market YAML prompts
+├── docs/
+│   ├── architecture.svg      # Architecture diagram
+│   └── screenshots/          # App screenshots
 ├── infra/
-│   └── deploy.sh            # Cloud Run deploy script (IaC bonus)
-├── start.sh                 # Production / Cloud Run launcher
-├── dev-start.sh             # Local dev launcher (with ADC check)
+│   └── deploy.sh             # Cloud Run deploy script (IaC)
+├── start.sh                  # Production launcher
+├── dev-start.sh              # Local dev launcher (with ADC check)
 ├── Dockerfile
 └── requirements.txt
 ```
 
 ---
 
-## License / ライセンス
+## Local Development
+
+### Prerequisites
+
+- Python 3.12+
+- Google Cloud project with Vertex AI enabled
+- Application Default Credentials configured
+
+```bash
+# Clone
+git clone https://github.com/syam1977/cultural-risk-intelligence
+cd cultural-risk-intelligence
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure GCP
+gcloud auth application-default login
+gcloud auth application-default set-quota-project YOUR_PROJECT_ID
+
+# Start (with ADC check)
+./dev-start.sh
+```
+
+Open `http://localhost:8080`
+
+### Environment Variables
+
+Set in `start.sh`:
+
+```bash
+GOOGLE_CLOUD_PROJECT=your-project-id
+GOOGLE_CLOUD_LOCATION=global           # For Orchestrator / Market Agents
+GOOGLE_CLOUD_LIVE_LOCATION=us-central1 # For Live API
+```
+
+---
+
+## Cloud Run Deployment
+
+```bash
+# Build and deploy
+bash infra/deploy.sh
+```
+
+Requires:
+- Service account with `roles/aiplatform.user`
+- Container Registry access
+
+---
+
+## Technical Notes
+
+| Decision | Rationale |
+|----------|-----------|
+| `--loop asyncio` for uvicorn | uvloop conflicts with websockets library causing handshake timeouts |
+| `api_version='v1beta1'` | Required for Live API WebSocket connections |
+| `us-central1` for Live API | `global` location is not supported by Live API |
+| `global` for Market Agents | Standard Vertex AI endpoint, supports parallelism |
+| `gemini-live-2.5-flash-native-audio` | Native audio output, no TTS conversion needed |
+| `gemini-3.1-flash-lite-preview` | Latest generation, lightweight, fast for parallel agents |
+
+---
+
+## Build Log
+
+| Day | Focus | Status |
+|-----|-------|--------|
+| Day 1 | Environment setup · All model connections verified | ✅ |
+| Day 2 | Voice response · Image input · Continuous conversation | ✅ |
+| Day 3 | Microphone input · VAD · Barge-in / interruption | ✅ |
+| Day 4 | UI design · Deep Analyze E2E · Orchestrator + 4 agents | ✅ |
+| Day 5 | Cloud Run deployment · Image support in Deep Analyze | ✅ |
+| Day 6 | UI redesign · World map · Risk score gauges · Transcription | ✅ |
+| Day 7 | Voice trigger · Deep Analyze voice readout · Model unification | ✅ |
+
+---
+
+## About the Builder
+
+Built by **Shinichi Yamada** ([@syam1977](https://github.com/syam1977)), a digital and AI practitioner with a long background in Japan's music industry. Currently leading AI initiatives at his organization.
+
+- **3rd place** at Microsoft Build 2025 Best Instructions Contest (1st among non-US residents)
+
+The cultural risk domains and market personas in this project reflect real editorial judgment developed over years in the global music industry.
+
+---
+
+## License
 
 MIT
+
+---
+
+*Submitted to the [Gemini Live Agent Challenge](https://geminiliveagentchallenge.devpost.com) · March 2026*
